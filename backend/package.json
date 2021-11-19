@@ -1,0 +1,47 @@
+{
+  "name": "UIS-backend",
+  "description": "Backend for UIS",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "local": "source ../.env-local.env && NODE_ENV=$APP_ENV PORT=$LOCAL_ONLY_SERVER_PORT env $(cat ../.env-local.env) nodemon bin/local",
+    "server": "NODE_ENV=$APP_ENV PORT=6868 node bin/server",
+    "clean": "rm -rf ../dist/server",
+    "build": "npm run clean && mkdir -p ../dist/server && NODE_ENV=production PORT=3001 babel ./ --ignore node_modules -s -d ../dist/server && cp -r bin public log4js.json package.json ../dist/server && cd ../dist/server && npm install"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "i18n": "^0.13.3",
+    "js-base64": "^3.6.1",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "log4js": "^6.3.0",
+    "moment": "^2.29.1",
+    "multer": "^1.4.3",
+    "nodemailer": "^6.6.3",
+    "owasp-password-strength-test": "^1.3.0",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "pg": "^8.6.0",
+    "pg-hstore": "^2.3.4",
+    "q": "^1.5.1",
+    "randomstring": "^1.2.1",
+    "sequelize": "^6.6.5",
+    "slugify": "^1.6.0",
+    "sprintf-js": "^1.1.2",
+    "validator": "^13.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/register": "^7.14.5",
+    "cross-env": "^7.0.3",
+    "nodemon": "^2.0.7"
+  }
+}

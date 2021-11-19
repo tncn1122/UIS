@@ -1,0 +1,16 @@
+{
+	"USERNAME_EXIST": "Username had been registered",
+	"EMAIL_EXIST": "Email had been registered",
+	"INVALID_EMAIL_FORMAT": "Invalid email",
+	"PASSWORD_UNMATCHED": "Password unmatched",
+	"PASSWORD_AT_LEAST_8_LENGTH": "The password must be at least 8 characters long",
+	"PASSWORD_AT_LEAST_1_UPPER_CASE": "The password must contain at least one uppercase letter",
+	"PASSWORD_AT_LEAST_1_NUMBER": "The password must contain at least one number",
+	"PASSWORD_AT_LEAST_1_SPECIAL_CHAR": "The password must contain at least one special character",
+	"PASSWORD_MAY_NOT_CONTAIN_SEQUENCES": "The password may not contain sequences of three or more repeated characters",
+	"LENGTH_MUST_IN_RANGE_{{MIN}}_{{MAX}}": "Length must be in range [{{MIN}}, {{MAX}}]",
+	"LENGTH_AT_LEAST_{{MIN}}": "Length of content must be at least {{MIN}} characters",
+	"TEAM_MEMBER_ADDED": "This member has been added",
+	"CANNOT_FIND_USER": "Cannot find this user",
+	"TEAM_NAME_EXISTED": "The team name has been existed"
+}
