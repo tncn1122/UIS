@@ -1,0 +1,24 @@
+@import 'style/color.scss';
+@import 'style/mixins.scss';
+
+#social-layout {
+  width: 100%;
+  padding: 10px 0 20px 0;
+  display: flex;
+  justify-content: space-evenly;
+}
+#social-layout button {
+  border: 1px solid $grey-border !important;
+  color: $font-black-1 !important;
+  width: 130px;
+  display: block !important;
+}
+#social-layout button:hover {
+  @include button-hover();
+  color: $primary !important;
+}
+#social-layout button img {
+  height: 130%;
+  padding-right: 5px;
+  margin-top: -3px;
+}

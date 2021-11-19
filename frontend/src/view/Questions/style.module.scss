@@ -1,0 +1,34 @@
+.quesions {
+  display: flex;
+  width: 1300px;
+  max-width: 100%;
+  padding: 50px;
+  margin: 0 auto;
+  justify-content: center;
+  :global {
+    .question__tree-container {
+      width: 400px;
+      margin-right: 30px;
+      .question__tree {
+        padding-left: 20px;
+        border-left: 1px solid black;
+        .question__label {
+          margin-bottom: 10px;
+        }
+        .ant-tree-treenode {
+          font-size: 1rem;
+        }
+      }
+    }
+    .answer-container {
+      width: 100%;
+      .answer {
+        // flex-flow: 1;
+        width: 100%;
+        padding: 20px;
+        flex-basis: auto;
+        border: 1px solid black;
+      }
+    }
+  }
+}

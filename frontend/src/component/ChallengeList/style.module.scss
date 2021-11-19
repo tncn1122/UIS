@@ -1,0 +1,48 @@
+@import 'style/color.scss';
+@import 'style/variables.scss';
+@import 'style/global.scss';
+
+$helper-text: #687078;
+
+.layout {
+  height: 100%;
+}
+
+.contest-name {
+  color: #000;
+  font-weight: 400;
+}
+
+.card {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 20px;
+  border-radius: 10px !important;
+}
+
+.card-header {
+  font-weight: 700;
+  font-size: 20px;
+  background-color: #f9f9f9;
+}
+
+.card-body {
+  padding: 0.5rem 1rem 0 1rem;
+
+  small {
+    color: $helper-text;
+  }
+
+  :global(.ant-card-body) {
+    height: 100%;
+  }
+
+  :global(.ant-input):placeholder-shown {
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  :global(.ant-collapse-content-box) {
+    padding: 0;
+  }
+}

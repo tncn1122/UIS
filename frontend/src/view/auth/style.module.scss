@@ -1,0 +1,71 @@
+@import 'style/color.scss';
+@import 'style/variables.scss';
+@import 'style/mixins.scss';
+
+$title-color: #333;
+$btn-text: #fff;
+$btn-bg: $primary;
+$btn-bg-hover: #ffa3a3;
+
+.auth-view {
+  width: 100%;
+  position: relative;
+
+  .img-top-left {
+    width: 120px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .img-bottom-right {
+    width: 120px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+
+  .auth-view-content {
+    margin: auto;
+    padding: $block-padding-vertical 0;
+
+    @include for-size(tablet, up) {
+      padding-top: 60px !important;
+      width: 650px !important;
+    }
+    @include for-size(phone, down) {
+      width: 100% !important;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .content {
+      background-color: $white;
+      border: 1px solid $grey-border;
+      border-radius: $border-radius;
+      margin: auto;
+
+      .title {
+        color: $title-color;
+        text-transform: uppercase;
+      }
+
+      .form-layout {
+        margin: auto;
+        width: 80%;
+
+        .button-disabled {
+          background-color: $primary-disabled !important;
+          border-color: $primary-disabled !important;
+          color: #ece7e7 !important;
+          &:hover {
+            background-color: $white !important;
+          }
+        }
+      }
+
+      .page-success-layout {
+        padding: 10px 40px 0 40px;
+      }
+    }
+  }
+}

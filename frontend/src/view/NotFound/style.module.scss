@@ -1,0 +1,13 @@
+.not-found {
+  width: 100%;
+  height: 100%;
+  :global {
+    .ant-result-title {
+      color: grey;
+    }
+    .ant-result-subtitle {
+      font-size: 1.5rem !important;
+      color: grey;
+    }
+  }
+}

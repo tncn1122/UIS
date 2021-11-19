@@ -1,0 +1,32 @@
+@import 'style/color.scss';
+@import 'style/variables.scss';
+
+.intro {
+  color: rgb(0, 0, 0);
+  font-size: 12px;
+  padding-bottom: 7px;
+}
+
+.icon {
+  padding-right: 10px !important;
+}
+
+.top {
+  text-align: center;
+  display: block;
+  padding: 10px 0px;
+}
+
+.user-name {
+  font-size: $font-size-h3;
+  color: $primary;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 2px !important;
+}
+
+.user-title {
+  font-size: 18px;
+  font-weight: 800 !important;
+  padding-bottom: 20px;
+}

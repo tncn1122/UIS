@@ -1,0 +1,46 @@
+.comment {
+  :global {
+    .replies {
+      padding-left: 50px;
+      border-left: 1px solid grey;
+      margin-bottom: 30px;
+    }
+    .reply {
+      margin-bottom: 20px;
+      margin-top: 20px;
+    }
+    .user {
+      padding-bottom: 10px;
+      font-weight: bold;
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 255px;
+      }
+    }
+    .btn-group {
+      .like,
+      .dislike {
+        margin-right: 20px;
+        color: grey;
+        &:hover {
+          color: black;
+        }
+      }
+      .btn-reply {
+        &:hover {
+          cursor: pointer;
+          text-decoration: underline;
+        }
+      }
+      svg {
+        &.active {
+          color: #1771e6;
+        }
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

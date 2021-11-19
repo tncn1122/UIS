@@ -1,0 +1,42 @@
+@import 'style/variables.scss';
+@import 'style/mixins.scss';
+@import 'style/color.scss';
+
+.footer {
+  height: $footer-height;
+  width: 100%;
+  overflow: auto;
+  padding: 28px $body-padding-horizon;
+  background-color: $footer-background;
+  border: 1px solid #d9d9d9;
+  align-items: center;
+  color: $font-black-1;
+  flex-direction: column;
+  text-align: center;
+
+  .row-title {
+    font-weight: 500;
+    line-height: 20px;
+  }
+  .row-description {
+    font-weight: 400;
+    line-height: 20px;
+    padding-left: 10px;
+  }
+
+  .row-link {
+    font-weight: 300;
+    line-height: 20px;
+    color: $font-black-1;
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  .linkList {
+    text-align: left;
+    a:last-child p {
+      margin-bottom: 0;
+    }
+  }
+}

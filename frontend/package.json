@@ -1,0 +1,105 @@
+{
+  "name": "code-tour-frontend",
+  "description": "Front end for Code Tour",
+  "private": true,
+  "scripts": {
+    "local": "source ../.env-local.env && REACT_APP_BACKEND_USER_END_POINT=$BACKEND_USER_END_POINT REACT_APP_BACKEND_USER_AVATAR_END_POINT=$BACKEND_USER_AVATAR_END_POINT REACT_APP_BACKEND_NEWS_THUMBNAIL_END_POINT=$BACKEND_NEWS_THUMBNAIL_END_POINT REACT_APP_NODE_ENV=$APP_ENV PORT=$APP_PORT react-app-rewired start",
+    "build": "source .env-$APP_ENV.env && REACT_APP_BACKEND_USER_END_POINT=$BACKEND_USER_END_POINT REACT_APP_BACKEND_USER_AVATAR_END_POINT=$BACKEND_USER_AVATAR_END_POINT REACT_APP_BACKEND_NEWS_THUMBNAIL_END_POINT=$BACKEND_NEWS_THUMBNAIL_END_POINT REACT_APP_NODE_ENV=$APP_ENV NODE_ENV=production react-app-rewired build",
+    "test": "react-scripts test",
+    "lint-staged": "lint-staged",
+    "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,scss,less,css}\"",
+    "eslint": "eslint --ext .js,jsx src",
+    "tslint": "tslint \"src/**/*.{ts,tsx}\"",
+    "stylelint": "stylelint \"src/**/*.{scss,less}\""
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,scss,less,css}": [
+      "prettier --write",
+      "git add"
+    ],
+    "src/**/*.{js,jsx}": [
+      "eslint"
+    ],
+    "src/**/*.{scss,less}": [
+      "stylelint"
+    ]
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.5.0",
+    "@ckeditor/ckeditor5-build-classic": "^28.0.0",
+    "@ckeditor/ckeditor5-react": "^3.0.2",
+    "ant-design-pro": "^2.3.2",
+    "antd": "^4.12.3",
+    "antd-img-crop": "^3.14.3",
+    "axios": "^0.21.1",
+    "classnames": "^2.2.6",
+    "connected-react-router": "^6.1.0",
+    "customize-cra": "^1.0.0",
+    "highlight.js": "^11.2.0",
+    "history": "^4.7.2",
+    "katex": "^0.13.18",
+    "lodash": "^4.17.11",
+    "moment": "^2.29.1",
+    "owasp-password-strength-test": "^1.3.0",
+    "prop-types": "^15.6.2",
+    "q": "^1.5.1",
+    "qs": "^6.10.1",
+    "quill-html-edit-button": "^2.2.7",
+    "quill-image-drop-module": "^1.0.3",
+    "quill-image-resize-module": "^3.0.0",
+    "quill-image-resize-module-react": "^3.0.0",
+    "quill-video-resize-module2": "0.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-icons": "^4.2.0",
+    "react-intl": "^2.7.2",
+    "react-loadable": "^5.5.0",
+    "react-quill": "^1.3.5",
+    "react-redux": "^7.2.3",
+    "react-router-dom": "^5.2.0",
+    "react-router-redux": "^4.0.8",
+    "react-scripts": "4.0.3",
+    "react-slick": "^0.28.1",
+    "redux": "^4.0.5",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-logger": "^3.0.6",
+    "redux-persist": "^6.0.0",
+    "redux-saga": "^1.1.3",
+    "redux-thunk": "^2.3.0",
+    "shortid": "^2.2.16",
+    "slick-carousel": "^1.8.1",
+    "slugify": "^1.6.0",
+    "store": "^2.0.12",
+    "validator": "^13.6.0",
+    "yup": "^0.32.9"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.2.3",
+    "babel-plugin-import": "^1.11.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "husky": "^1.3.1",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "lint-staged": "^8.1.0",
+    "node-pre-gyp": "^0.12.0",
+    "node-sass": "^4.11.0",
+    "prettier": "^2.3.1",
+    "react-app-rewire-alias": "^1.0.3",
+    "react-app-rewired": "^2.1.8",
+    "stylelint": "^9.9.0",
+    "stylelint-config-prettier": "^4.0.0",
+    "stylelint-config-standard": "^18.2.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

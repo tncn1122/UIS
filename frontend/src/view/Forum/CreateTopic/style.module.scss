@@ -1,0 +1,97 @@
+@import 'style/color.scss';
+
+.main {
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  max-width: 100%;
+  font-size: 12px;
+  width: 100% !important;
+  background: #f8f8f8;
+  padding: 30px 280px;
+
+  .breadcrumb {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .title {
+    padding-top: 40px;
+    padding-bottom: 15px;
+    text-align: left;
+    color: #222;
+    letter-spacing: 0.3px;
+    line-height: 20px;
+    font-weight: 400;
+    font-size: 24px;
+  }
+
+  .topic {
+    font-size: 12px;
+    background: white;
+    max-width: 100%;
+    padding: 30px;
+    border: 1px solid #bfbfbf;
+    border-radius: 20px;
+    :global {
+      .content-validation {
+        font-size: 12px;
+        color: red;
+      }
+
+      .form-title {
+        font-weight: 400;
+        font-size: 10px;
+      }
+
+      .input {
+        margin-top: -20px;
+        font-size: 12px;
+        padding-left: 10px;
+        display: block;
+        border: 1px solid #e6e6e6;
+        border-radius: 5px;
+        width: 120%;
+      }
+    }
+  }
+
+  .footer {
+    padding-top: 40px;
+    padding-bottom: 30px;
+    .left {
+      button {
+        letter-spacing: 0.3px;
+        font-size: 10px;
+        margin-right: 5px;
+        background: #eaeaea;
+        border-radius: 5px;
+        color: #808080;
+        height: 20px;
+      }
+    }
+    .right {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: flex-end;
+      .button-active {
+        letter-spacing: 0.3px;
+        font-size: 10px;
+        font-weight: 450;
+        border-radius: 6px;
+        margin-left: 5px;
+        color: white;
+        background: #f05a22;
+      }
+      .button-inactive {
+        letter-spacing: 0.3px;
+        font-size: 10px;
+        font-weight: 300;
+        border-radius: 6px;
+        margin-left: 5px;
+        color: black;
+        background: #e5e5e5;
+        border: 1px solid $grey-darker-border;
+      }
+    }
+  }
+}

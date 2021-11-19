@@ -1,0 +1,56 @@
+$breakpoints: (
+  phone-sm: 420px,
+  phone: 767px,
+  tablet: 768px,
+  tablet-lg: 1024px,
+  desktop: 1025px,
+  desktop-lg: 1600px,
+);
+
+@mixin for-size($breakpoint) {
+  //Kiểm tra breakpoint truyền vào có tồn tại
+  // như bạn đã định nghĩa hay không.
+  @if map-has-key($breakpoints, $breakpoint) {
+    // Lấy giá trị pixel breakpoint đó
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+
+    //Build media query
+    @media (max-width: $breakpoint-value) {
+      //Những gì bạn mong muốn sẽ được lồng vào @content
+      @content;
+    }
+  }
+}
+
+.Partner {
+  :global(.ant-card-cover) {
+    border: 1px solid #ccc;
+    img {
+      width: 200px;
+      height: 100px;
+    }
+  }
+  @include for-size(phone-sm) {
+    :global(.ant-card-cover) {
+      border: 1px solid #ccc;
+      img {
+        width: 150px;
+        height: 80px;
+      }
+    }
+  }
+}
+
+.PartnerList {
+  margin: 20px;
+  @include for-size(phone-sm) {
+    margin-left: 10%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+.PartnerChild {
+  max-width: none;
+  margin-top: 10px;
+}

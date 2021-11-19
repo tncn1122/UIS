@@ -1,0 +1,41 @@
+@import 'style/variables.scss';
+@import 'style/color.scss';
+
+.highlight-notification {
+  width: 100%;
+  height: $news-highlight-height;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $primary;
+  padding: 30px;
+
+  .news-container {
+    display: flex;
+    height: 100%;
+    align-items: center;
+
+    .news {
+      color: white !important;
+      margin-right: 30px;
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      svg {
+        color: white;
+        font-size: 30px;
+      }
+    }
+  }
+
+  .close {
+    float: right;
+    font-size: 40px;
+    display: flex;
+    color: white;
+    align-items: center;
+    height: 100%;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

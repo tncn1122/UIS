@@ -1,0 +1,156 @@
+@import 'style/variables.scss';
+@import 'style/color.scss';
+@import 'style/mixins.scss';
+
+.header {
+  height: $header-height;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-evenly;
+  z-index: 2;
+  background-color: white;
+  //border-bottom: 1px solid #f15b291e;
+  box-shadow: 0px 1px 10px $grey-border;
+  //background: linear-gradient(0deg, rgba(255, 158, 60, 1) 0%, rgba(255, 72, 0, 1) 100%);
+
+  .logo {
+    display: flex;
+    width: 100px;
+    align-items: center;
+    justify-content: center;
+    margin: auto 0px;
+    height: 100%;
+
+    img {
+      //width: 155px;
+      //height: 21px;
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .menu-container {
+    position: relative;
+    display: inline;
+    margin: auto 0;
+    .menu-list {
+      width: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      margin-left: 50%;
+      transform: translateX(-50%);
+
+      .menu-item {
+        color: black;
+        @include link();
+      }
+    }
+
+    .top-menu {
+      color: #222;
+      &:hover {
+        font-weight: 400;
+        color: black;
+      }
+      &:after {
+        bottom: 0;
+        content: '';
+        display: block;
+        height: 2px;
+        left: 50%;
+        position: relative;
+        background-color: $primary;
+        transition: width 0.3s ease 0s, left 0.3s ease 0s;
+        width: 0;
+      }
+      &:hover:after {
+        width: 100%;
+        left: 0;
+      }
+    }
+  }
+
+  .group-control {
+    width: 300px;
+    display: flex;
+    justify-content: flex-end;
+    height: 100%;
+    align-items: center;
+
+    .slash {
+      margin: 0 10px;
+    }
+
+    .btn-login,
+    .btn-register {
+      @include link();
+    }
+
+    img {
+      &.flag {
+        width: 37px;
+        height: 19px;
+        margin-right: 10px;
+      }
+    }
+
+    .avatar-container {
+      position: relative;
+      border-radius: 255px;
+      &:hover {
+        cursor: pointer;
+        .overlay {
+          background-color: rgba(0, 0, 0, 0.3);
+        }
+      }
+      //.overlay {
+      //  position: absolute;
+      //  top: 0;
+      //  left: 0;
+      //
+      //  z-index: 99;
+      //  width: 100%;
+      //  height: 100%;
+      //  border-radius: 255px;
+      //}
+      img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    .bell {
+      font-size: 25px;
+      margin-right: 20px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 255px;
+      background-color: rgb(179, 179, 179);
+      &:hover {
+        cursor: pointer;
+        background-color: grey;
+      }
+    }
+  }
+}
+
+.avatar-dropdown {
+  z-index: 3 !important;
+  // todo: double check: if border-radius or border ?
+  //border-radius: $border-radius;
+  //border: 1px solid black;
+
+  a {
+    font-size: 16px;
+    padding: 20px;
+  }
+}

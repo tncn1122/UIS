@@ -1,0 +1,10 @@
+@import '../style.module.scss';
+
+.content {
+  @extend .contest-page-content;
+}
+
+.pagination {
+  text-align: center;
+  padding: 20px 0 40px 0;
+}

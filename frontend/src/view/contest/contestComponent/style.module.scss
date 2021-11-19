@@ -1,0 +1,88 @@
+@import 'style/color.scss';
+
+.content {
+  border: 1.5px solid $grey-darker-border;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  position: relative;
+  justify-content: center;
+  vertical-align: middle;
+
+  .row-into {
+    .col-title {
+      padding-left: 30px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      .contest-title {
+        color: black;
+        margin: 0 !important;
+      }
+    }
+    .col-countdown {
+      padding-top: 15px;
+    }
+  }
+
+  .devider {
+    margin: 0px !important;
+    background-color: $grey-darker-border !important;
+  }
+
+  .row-detail {
+    padding: 20px 30px;
+  }
+
+  .contest-button {
+    text-transform: uppercase;
+    &:disabled {
+      color: $grey-darker-disabled !important;
+      border: 1.5px solid $grey-darker-border !important;
+    }
+  }
+  .contest-button-past {
+    border: 1.5px solid #1c40ee !important;
+    color: #1c40ee !important;
+    &:hover {
+      background: #1c40ee !important;
+      color: $white !important;
+    }
+  }
+  .contest-button-ongoing {
+    border: 1.5px solid #00ac47 !important;
+    color: #00ac47 !important;
+    &:hover {
+      background: #00ac47 !important;
+      color: $white !important;
+    }
+  }
+  .contest-button-planned {
+    border: 1.5px solid $primary !important;
+    color: $primary;
+    &:hover {
+      background: $primary !important;
+      color: $white !important;
+    }
+  }
+
+  .contest-status {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    width: 128px;
+    height: 38px;
+    text-align: center;
+    padding: 5px;
+    color: $white !important;
+  }
+  .contest-status-past {
+    background-color: #1c40ee;
+  }
+  .contest-status-ongoing {
+    background-color: #00ac47;
+  }
+  .contest-status-planned {
+    background-color: $primary;
+  }
+}

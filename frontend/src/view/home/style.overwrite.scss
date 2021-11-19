@@ -1,0 +1,37 @@
+@import 'style/color.scss';
+@import './style.module.scss';
+
+#banners .slick-slider .slick-list .slick-slide .ant-row {
+  height: $banner-height;
+}
+#banners .slick-slider .slick-list .slick-slide .ant-row .ant-btn {
+  font-size: 20px !important;
+  padding: 25px 30px !important;
+}
+
+#banners .slick-slider .slick-prev {
+  z-index: 1;
+  margin-left: 5%;
+}
+#banners .slick-slider .slick-next {
+  z-index: 1;
+  margin-right: 5%;
+}
+#banners .slick-prev:before,
+#banners .slick-next:before {
+  color: $grey-1;
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.benefitCard .ant-card-meta-avatar .ant-avatar > img {
+  object-fit: contain !important;
+}
+
+.testimonials {
+  padding: 30px 10%;
+}
+
+.testimonials .slick-slider .slick-slide .ant-card-bordered {
+  margin-right: 30px;
+}

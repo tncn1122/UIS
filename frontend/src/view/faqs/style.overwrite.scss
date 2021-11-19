@@ -1,0 +1,6 @@
+@import 'style/color.scss';
+@import './style.module.scss';
+
+* .ant-card-body {
+  font-size: $font-size-default !important;
+}

@@ -1,0 +1,74 @@
+@import 'style/color.scss';
+@import 'style/overwrite-template';
+
+.user-avatar-block {
+  padding: 20px;
+  border-color: $grey-darker-border;
+  border-radius: 20px;
+  text-align: center;
+  min-width: 150px;
+}
+
+.user-info-title {
+  font-size: 34px;
+  font-weight: 400;
+  padding: 0px 16px;
+  margin-bottom: auto;
+}
+.user-info-row {
+  padding: 16px;
+}
+
+.user-info-body {
+  position: relative;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 50px;
+}
+
+.card-block {
+  margin-top: 30px;
+}
+
+.edit-icon {
+  font-size: 25px;
+  padding: 0px !important;
+  display: block;
+  float: right;
+  height: 30px;
+  width: 30px;
+  color: rgb(114, 114, 114);
+  &:hover {
+    cursor: pointer;
+    color: black;
+  }
+}
+
+.user-menu {
+  font-size: 18px;
+  text-align: left;
+  font-weight: 400;
+  text-decoration: none;
+  display: table;
+
+  &:hover {
+    font-weight: 500;
+  }
+  &:after {
+    background: none repeat scroll 0 0 transparent;
+    bottom: 0;
+    content: '';
+    display: block;
+    height: 2px;
+    left: 0%;
+    position: relative;
+    background-color: $primary;
+    transition: width 0.3s ease 0s, left 0.3s ease 0s;
+    width: 0;
+  }
+  &:hover:after {
+    width: 100%;
+    left: 0;
+  }
+}

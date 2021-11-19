@@ -1,0 +1,87 @@
+@import 'style/color.scss';
+
+// Responsive
+// https://docs.microsoft.com/en-us/windows/apps/design/layout/screen-sizes-and-breakpoints-for-responsive-design
+$breakpoints: (
+  //phone-sm: 420px,
+  phone: 640px,
+  // 767
+  tablet: 641px,
+  // 768
+  tablet-lg: 1024px,
+  desktop-low: 1025px,
+  desktop-up: 1365px,
+  desktop-lg-low: 1366px,
+  desktop-lg-up: 1919px,
+  desktop-xlg: 1920px
+);
+
+//@include for-size(desktop-xlg, up) {
+//}
+//@include between-sizes(desktop-lg-low, desktop-lg-up) {
+//}
+//@include between-sizes(desktop-low, desktop-up) {
+//}
+//@include between-sizes(tablet, tablet-lg) {
+//}
+//@include for-size(phone, down) {
+//}
+
+@mixin for-size($breakpoint, $direction: down) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $breakpoint-value: map-get($breakpoints, $breakpoint);
+    @if $direction == up {
+      @media (min-width: $breakpoint-value) {
+        @content;
+      }
+    } @else if $direction == down {
+      @media (max-width: $breakpoint-value) {
+        @content;
+      }
+    }
+  } @else {
+    @if $direction == up {
+      @media (min-width: $breakpoint) {
+        @content;
+      }
+    } @else if $direction == down {
+      @media (max-width: $breakpoint) {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin between-sizes($lower, $upper) {
+  @if map-has-key($breakpoints, $lower) and map-has-key($breakpoints, $upper) {
+    $lower-breakpoint: map-get($breakpoints, $lower);
+    $upper-breakpoint: map-get($breakpoints, $upper);
+    @media (min-width: $lower-breakpoint) and (max-width: $upper-breakpoint) {
+      @content;
+    }
+  } @else {
+    @media (min-width: $lower) and (max-width: $upper) {
+      @content;
+    }
+  }
+}
+
+@mixin link($color: 'black', $hoverColor: 'black') {
+  font-weight: 400;
+  color: $color !important;
+  text-decoration: none;
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: underline;
+    color: $hoverColor !important;
+  }
+}
+
+@mixin button-hover() {
+  &:hover {
+    border: 1px solid $primary !important;
+    cursor: pointer;
+    transition: box-shadow 0.3s, border-color 0.3s;
+  }
+}
