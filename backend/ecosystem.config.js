@@ -7,7 +7,7 @@ module.exports = {
   deploy: {
     production: {
       user: 'tncn1122',
-      host: '13.250.121.254',
+      host: '54.254.154.61',
       key: 'deploy.key',
       ref: 'origin/master',
       repo: 'git@github.com:tncn1122/UIS.git',
