@@ -1,93 +1,91 @@
 #!/usr/bin/env node
 
-const logger = require("log4js").getLogger()
-const currentFileName = require('path').basename(__filename)
+/**
+ * Module dependencies.
+ */
 
-const assert = require('assert')
-const PORT = process.env.PORT || 3001;
+var app = require('../app');
+var debug = require('debug')('checkin-ptit:server');
+var http = require('http');
+const { env } = require('process');
 
-async function initServer() {
-  // sleep for 1s to init something
-  await new Promise((resolve) => {
-    setTimeout(resolve, 1000);
-  });
+/**
+ * Get port from environment and store in Express.
+ */
 
-  const app = require("../app");
-  const server = app.listen(PORT, function () {
-    logger.info(`Webserver is ready and listening on port ${PORT}`);
-    logger.info(`Running mode: ${process.env.NODE_ENV}`);
-  });
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
 
-  // if the Promise is rejected (forgot to catch after promise.then()) this will catch it
-  process.on('unhandledRejection', (err) => {
-    throw err; // then pass to uncaughtException
-  });
+/**
+ * Create HTTP server.
+ */
 
-  process.on('uncaughtException', err => {
-    logger.error(`[${currentFileName}]: ----- Unexpected exception: start -----`)
-    try {
-      logger.error(`[${currentFileName}]: ${JSON.stringify(err)}`)
-    } catch (error){
-      logger.error(`[${currentFileName}]: ${err}`)
-    }
-    logger.error(err)
-    logger.error(`[${currentFileName}]: ----- Unexpected exception: end -----\n\n`)
-  })
+var server = http.createServer(app);
 
-  // quit on ctrl-c when running docker in terminal
-  process.on('SIGINT', function onSigint () {
-    logger.info('Got SIGINT (aka ctrl-c in docker). Graceful shutdown ', new Date().toISOString());
-    shutdown();
-  });
+/**
+ * Listen on provided port, on all network interfaces.
+ */
 
-  // quit properly on docker stop
-  process.on('SIGTERM', function onSigterm () {
-    logger.info('Got SIGTERM (docker container stop). Graceful shutdown ', new Date().toISOString());
-    shutdown();
-  })
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
-  // process unhandled promise rejection
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-    if (process.env.NODE_ENV !== 'production') {
-      assert.fail('There is an unhandled rejection!');
-    }
-  });
+/**
+ * Normalize a port into a number, string, or false.
+ */
 
-  let sockets = {}, nextSocketId = 0;
-  server.on('connection', function (socket) {
-    const socketId = nextSocketId++;
-    sockets[socketId] = socket;
+function normalizePort(val) {
+  var port = parseInt(val, 10);
 
-    socket.once('close', function() {
-      delete sockets[socketId];
-    });
-  });
-
-  // shut down server
-  function shutdown() {
-    waitForSocketsToClose(10);
-
-    server.close(function onServerClosed (err) {
-      if (err) {
-        console.error(err);
-        process.exitCode = 1;
-      }
-      process.exit();
-    });
+  if (isNaN(port)) {
+    // named pipe
+    return val;
   }
 
-  function waitForSocketsToClose(counter) {
-    if (counter > 0) {
-      logger.info(`Waiting ${counter} more ${counter === 1 ? 'seconds' : 'second'} for all connections to close...`);
-      return setTimeout(waitForSocketsToClose, 1000, counter - 1);
-    }
+  if (port >= 0) {
+    // port number
+    return port;
+  }
 
-    logger.info("Forcing all connections to close now");
-    for (var socketId in sockets) {
-      sockets[socketId].destroy();
-    }
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
   }
 }
 
-initServer();
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

@@ -1,43 +1,97 @@
-global.ROOT = __dirname
-import cors from 'cors'
-import helmet from 'helmet'
-import cookieParser from 'cookie-parser'
-import express from 'express'
-import { loadConf, config } from './config/loadConfig'
-import { ErrorHandlerMiddleware } from './middleware'
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var cors = require('cors');
+const https = require('https');
+const fs = require('fs');
+var app = express();
 
-const app = express()
+// config env
+require('dotenv').config()
 
-app.use(helmet())
+// Routes
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/user');
+var studentsRouter = require('./routes/student');
+var teachersRouter = require('./routes/teacher');
+var dashboardRouter = require('./routes/dashboard');
+var classesRouter = require('./routes/class');
+var reportRouter = require('./routes/rollcallreport');
 
 
-app.use(express.json({ limit: '800mb' }))
-app.use(express.urlencoded({ extended: true, limit: '800mb' }))
+// Config Swagger
+const expressSwagger = require('express-swagger-generator')(app);
+const swaggerConf = require('./swagger-conf.js');
+expressSwagger(swaggerConf);
+// const swaggerUi = require('swagger-ui-express');
+// const swaggerDocument = require('./swagger.json');
+
+
+
+
+
+// database
+// require('./db/db')
+
+
+
+
+app.use(cors({credentials: "true", origin: 'http://localhost:3000'}))
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// init base configurations
-loadConf().then(async() => {
-    //use cors middleware to avoid error CROSS DOMAIN
-    // https://www.npmjs.com/package/cors
-    const corsOptions = {
-        origin: config.get('corsAllowedOrigins'), // true if want to allow all (*)
-        method: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE' ],
-        credentials: true,
-        optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    }
-    app.use(cors(corsOptions))
+app.use('/', indexRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/students', studentsRouter);
+app.use('/api/classes', classesRouter);
+app.use('/api/teachers', teachersRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/reports', reportRouter);
 
-    // ----- MUST use require in here -----
-    //init db: must be in here, after loadConf()
-    await require('./config/dbMaster').connection.sync()
-    // apply jwt authentication by passport-jwt
-    require('./config/passportJWT')()
 
-    // load route
-    app.use(config.get('baseEndpointApi'), require('./route'))
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
-    // handle unexpected exception
-    app.use(ErrorHandlerMiddleware)
-})
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+
+
 
 module.exports = app;
+
+var MODE = process.env.MODE || 'Dev';
+if(MODE === 'Prod'){
+  //app.listen(process.env.DEPLOY_PORT);
+  var privateKey = fs.readFileSync(process.env.PRIVATE_KEY_LINK);
+  var certificate = fs.readFileSync(process.env.CERTIFICATE_KEY_LINK);
+  var ca = [
+    fs.readFileSync(process.env.CA_ROOT_KEY_LINK),
+    fs.readFileSync(process.env.CA_BUNDLE_KEY_LINK)
+  ]
+  https.createServer({
+    key: privateKey,
+    cert: certificate,
+    ca: ca
+  }, app).listen(443);
+}
