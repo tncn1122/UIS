@@ -13,7 +13,7 @@ module.exports = {
       repo: 'git@github.com:tncn1122/UIS.git',
       path: '/var/www/html/UIS',
       'post-deploy':
-        'npm install && pm2 reload ecosystem.config.js --env production && pm2 save && git checkout package-lock.json',
+        'yarn install && pm2 reload ecosystem.config.js --env production && pm2 save && git checkout yarn.lock',
     },
   },
 };
