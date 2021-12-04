@@ -1,9 +1,4 @@
-const mongoose = require('mongoose')
-const validator = require('validator')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const stringMessage = require('../value/string')
-const userUtil = require('../util/UserUtils')
+const { DataTypes } = require('sequelize')
 
 
 module.exports = function (sequelize, Sequelize) {
@@ -13,49 +8,48 @@ module.exports = function (sequelize, Sequelize) {
     id: {
       autoIncrement: true,
       primaryKey: true,
-      type: Sequelize.INTEGER
+      type: DataTypes.INTEGER
     },
 
     firstname: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       notEmpty: true
     },
 
     lastname: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       notEmpty: true
     },
 
     username: {
-      type: Sequelize.TEXT
-    },
-
-    about: {
-      type: Sequelize.TEXT
+      type: DataTypes.TEXT
     },
 
     email: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       validate: {
         isEmail: true
       }
     },
 
     password: {
-      type: Sequelize.STRING,
+      type: DataTypes.STRING,
       allowNull: false
     },
 
     last_login: {
-      type: Sequelize.DATE
+      type: DataTypes.DATE
     },
 
-    status: {
-      type: Sequelize.ENUM('active', 'inactive'),
-      defaultValue: 'active'
+    active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true
+    },
+
+    role: {
+      type: DataTypes.ENUM('admin', 'teacher', 'student'),
+      notEmpty: true
     }
-
-
   });
 
   return User;

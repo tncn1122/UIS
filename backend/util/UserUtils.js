@@ -1,5 +1,5 @@
 const stringMessage = require('../value/string')
-const User = require('../models/User');
+const User = require('../schemas/user');
 
 function hideUserInfo(userInfo){
     return {
