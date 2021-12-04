@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const User = require('../schemas/User')
+const User = require('../schemas/user')
 const stringMessage = require('../value/string')
 
 const isUser = async(req, res, next) => {    
