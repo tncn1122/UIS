@@ -82,16 +82,5 @@ module.exports = app;
 
 var MODE = process.env.MODE || 'Dev';
 if(MODE === 'Prod'){
-  //app.listen(process.env.DEPLOY_PORT);
-  var privateKey = fs.readFileSync(process.env.PRIVATE_KEY_LINK);
-  var certificate = fs.readFileSync(process.env.CERTIFICATE_KEY_LINK);
-  var ca = [
-    fs.readFileSync(process.env.CA_ROOT_KEY_LINK),
-    fs.readFileSync(process.env.CA_BUNDLE_KEY_LINK)
-  ]
-  https.createServer({
-    key: privateKey,
-    cert: certificate,
-    ca: ca
-  }, app).listen(443);
+  app.listen(process.env.DEPLOY_PORT);
 }
