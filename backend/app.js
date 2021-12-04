@@ -33,7 +33,15 @@ expressSwagger(swaggerConf);
 
 
 // database
-// require('./db/db')
+//Models
+var models = require("./models");
+ 
+//Sync Database
+models.sequelize.sync().then(function() {
+  console.log('Nice! Database looks fine')
+}).catch(function(err) {
+  console.log(err, "Something went wrong with the Database Update!")
+});
 
 
 
@@ -84,3 +92,5 @@ var MODE = process.env.MODE || 'Dev';
 if(MODE === 'Prod'){
   app.listen(process.env.DEPLOY_PORT);
 }
+
+console.log("Server start successfully!")
