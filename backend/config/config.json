@@ -1,26 +1,8 @@
 {
-  "development": {
-    "username": "admin",
-    "password": "n17dccn115",
-    "database": "uis",
-    "host": "ptituis-1.c6i9qtugjmar.ap-southeast-1.rds.amazonaws.com",
-    "port": 1433,
-    "dialect": "mssql"
-  },
-  "test": {
-    "username": "admin",
-    "password": "n17dccn115",
-    "database": "uis",
-    "host": "ptituis-1.c6i9qtugjmar.ap-southeast-1.rds.amazonaws.com",
-    "port": 1433,
-    "dialect": "mssql"
-  },
-  "production": {
-    "username": "admin",
-    "password": "n17dccn115",
-    "database": "uis",
-    "host": "ptituis-1.c6i9qtugjmar.ap-southeast-1.rds.amazonaws.com",
-    "port": 1433,
-    "dialect": "mssql"
-  }
+  "username": "admin",
+  "password": "n17dccn115",
+  "database": "uis",
+  "host": "ptituis-1.c6i9qtugjmar.ap-southeast-1.rds.amazonaws.com",
+  "port": 1433,
+  "dialect": "mssql"
 }
