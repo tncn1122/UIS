@@ -36,7 +36,7 @@ import {
 
 import { NavLink, Link } from "react-router-dom";
 import styled from "styled-components";
-import avtar from "../../assets/images/team-2.jpg";
+import avtar from "../assets/images/team-2.jpg";
 
 const ButtonContainer = styled.div`
   .ant-btn-primary {
@@ -279,17 +279,10 @@ function Header({
             <Breadcrumb.Item>
               <NavLink to="/">Pages</NavLink>
             </Breadcrumb.Item>
-            <Breadcrumb.Item style={{ textTransform: "capitalize" }}>
-              {name.replace("/", "")}
-            </Breadcrumb.Item>
+            <Breadcrumb.Item>{name}</Breadcrumb.Item>
           </Breadcrumb>
           <div className="ant-page-header-heading">
-            <span
-              className="ant-page-header-heading-title"
-              style={{ textTransform: "capitalize" }}
-            >
-              {subName.replace("/", "")}
-            </span>
+            <span className="ant-page-header-heading-title">{subName}</span>
           </div>
         </Col>
         <Col span={24} md={18} className="header-control">
@@ -315,7 +308,7 @@ function Header({
             {toggler}
           </Button>
           <Drawer
-            className="settings-drawer"
+            className="settings-drawer settings-drawer-rtl"
             mask={true}
             width={360}
             onClose={hideDrawer}
@@ -361,7 +354,7 @@ function Header({
 
                     <Button
                       type="black"
-                      onClick={() => handleSidenavColor("#111")}
+                      onClick={() => handleSidenavColor("black")}
                     >
                       1
                     </Button>
