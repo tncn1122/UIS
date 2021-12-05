@@ -32,12 +32,8 @@ expressSwagger(swaggerConf);
 
 
 
-//Sync Database
-require('./db/db').connection.sync().then(function() {
-  console.log('Nice! Database looks fine')
-}).catch(function(err) {
-  console.log(err, "Something went wrong with the Database Update!")
-});
+// database
+require('./db/db')
 
 
 
@@ -88,5 +84,3 @@ var MODE = process.env.MODE || 'Dev';
 if(MODE === 'Prod'){
   app.listen(process.env.DEPLOY_PORT);
 }
-
-console.log("Server start successfully!")
