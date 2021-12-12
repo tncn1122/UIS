@@ -1,3 +1,4 @@
+// front-end
 module.exports = {
   script: "serve",
   env: {
@@ -7,3 +8,8 @@ module.exports = {
     PM2_SERVE_HOMEPAGE: '/index.html'
   }
 }
+
+
+
+
+

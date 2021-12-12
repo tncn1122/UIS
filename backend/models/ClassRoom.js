@@ -1,20 +1,23 @@
 const mongoose = require('mongoose');
+const QR = require('../util/QR');
+const { CreateSchema } = require('./BaseSchema');
+const modelName = 'classroom'
 
-const classRoomSchema = mongoose.Schema({
-    id: {
-        type: String,
-        unique: true,
-        require: true,
-        trim: true
-    },
-    stringDate: [
-        {
-            type: String,
-            require: true
-        }
-    ]
-})
+const classRoomSchema = CreateSchema({
+  id: {
+    type: String,
+    unique: true,
+    require: true,
+    trim: true
+  },
+  stringDate: [
+    {
+      type: String,
+      require: true
+    }
+  ]
+}, modelName)
 
-const classRoom = mongoose.model('ClassRoom', classRoomSchema);
+const classRoom = mongoose.model(modelName, classRoomSchema);
 
 module.exports = classRoom;
