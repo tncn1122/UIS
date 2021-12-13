@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const baseSchema = require('./BaseSchema')
 
-const modelName = 'rollcall'
+const modelName = 'Rollcall'
 
 const rollcallSchema = baseSchema.CreateSchema({
   rollcallReportId: {

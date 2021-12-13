@@ -44,7 +44,7 @@ const baseSchema = require('./BaseSchema');
  * @property {string} schedule
  */
 
- const modelName = 'classinfo'
+ const modelName = 'Classinfo'
 
 
 const classInfoSchema = baseSchema.CreateSchema({

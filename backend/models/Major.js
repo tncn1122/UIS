@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const baseSchema = require('./BaseSchema')
 
-const modelName = 'major'
+const modelName = 'Major'
 
 
 const majorSchema = baseSchema.CreateSchema({

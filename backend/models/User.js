@@ -7,7 +7,7 @@ const userUtil = require('../util/UserUtils')
 const enumModel = require('../value/model')
 const { CreateSchema } = require('./BaseSchema')
 
-const modelName = 'user'
+const modelName = 'User'
 
 /**
  * @typedef UserInfo

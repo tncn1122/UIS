@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const baseSchema = require('./BaseSchema')
 
-const modelName = 'subject'
+const modelName = 'Subject'
 
 const subjectSchema = baseSchema.CreateSchema({
   subjectId: {

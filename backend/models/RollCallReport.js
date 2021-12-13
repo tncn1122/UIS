@@ -7,7 +7,7 @@ const validateUtil = require('../util/Validate');
 const QR = require('../util/QR');
 const baseSchema = require('./BaseSchema')
 
-const modelName = 'rollcallReport'
+const modelName = 'RollcallReport'
 
 
 /**

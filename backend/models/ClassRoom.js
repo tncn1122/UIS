@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const QR = require('../util/QR');
 const { CreateSchema } = require('./BaseSchema');
-const modelName = 'classroom'
+const modelName = 'Classroom'
 
 const classRoomSchema = CreateSchema({
   id: {
