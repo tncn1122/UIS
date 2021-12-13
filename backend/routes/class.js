@@ -90,7 +90,7 @@ const moment = require('moment-timezone')
     ClassInfo.find({}, function(err, classes){
         //console.log(users);
         if(err){
-            res.status(500).send(ResponseUtil.makeMessageResponse(error.message))
+            res.status(500).send(ResponseUtil.makeMessageResponse(err.message))
         }
         else{
             console.log((classes));
