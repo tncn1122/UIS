@@ -5,6 +5,10 @@ const reportUtil = require('../util/ReportUtils');
 const classtUtil = require('../util/ClassUtils');
 const validateUtil = require('../util/Validate');
 const QR = require('../util/QR');
+const baseSchema = require('./BaseSchema')
+
+const modelName = 'rollcallReport'
+
 
 /**
  * @typedef UserReport
@@ -25,73 +29,85 @@ const QR = require('../util/QR');
  * @property {boolean} allowLate.required
  */
 
-const reportschema = mongoose.Schema({
-    id: {
-        type: String,
-        unique: true,
-        require: true,
-        trim: true
+const reportschema = baseSchema.CreateSchema({
+  id: {
+    type: String,
+    unique: true,
+    require: true,
+    trim: true
+  },
+  subject: {
+    type: String,
+    require: true,
+    trim: true
+  },
+  content: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'User',
+      require: true
     },
-    subject: {
-        type: String,
-        require: true,
-        trim: true
-    },
-    content: [{
-        user: {
-            type: mongoose.Schema.Types.ObjectId, ref: 'User',
-            require: true
-        },
-        status: {
-            type: String,
-            enum: {
-            values: ['late', 'ontime', 'absent'],
-            message: "Trạng thái không đúng!"
-            },
-            require: true
-        }
-    }],
-    qrUrl: {
-        type: String,
-        require: true
-    },
-    date: {
-        type: String
-    },
-    shift:{
-        type: String
-    },
-    subjectName:{
-        type: String
-    },
-    teacherName:{
-        type: String
-    },
-    expired: {
-        type: String,
-        require: true
-    },
-    checkinLimitTime:{
-        type: String,
-        require: true
-    },
-    allowLate:{
-        type: Boolean,
-        required: true
+    status: {
+      type: String,
+      enum: {
+        values: ['late', 'ontime', 'absent'],
+        message: "Trạng thái không đúng!"
+      },
+      require: true
     }
+  }],
+  qrUrl: {
+    type: String,
+    require: true
+  },
+  date: {
+    type: String
+  },
+  shift: {
+    type: String
+  },
+  subjectName: {
+    type: String
+  },
+  teacherName: {
+    type: String
+  },
+  expired: {
+    type: String,
+    require: true
+  },
+  checkinLimitTime: {
+    type: String,
+    require: true
+  },
+  allowLate: {
+    type: Boolean,
+    required: true
+  },
+  // Refactor
+  // TODO: refactor
+  rollcallReportId: {
+    type: String,
+    unique: true,
+    require: true,
+    trim: true
+  },
+  subjectId: {
+    type: String,
+    require: true,
+  }
+}, modelName)
+
+reportschema.pre('save', async function (next) {
+  const report = this;
+  report.qrUrl = QR.createQR(report.id);
+  report.date = reportUtil.getDate();
+
+  classtUtil.validateDate(report.checkinLimitTime);
+  validateUtil.id(report.id);
+  report.checkinLimitTime = validateUtil.limitTime(report.expired, report.checkinLimitTime);
+  next();
 })
 
-reportschema.pre('save', async function(next){
-    const report = this;
-    report.qrUrl = QR.createQR(report.id);
-    report.date = reportUtil.getDate();
-
-    classtUtil.validateDate(report.checkinLimitTime);
-    validateUtil.id(report.id);
-    report.checkinLimitTime = validateUtil.limitTime(report.expired, report.checkinLimitTime);
-    next();
-})
-
-const rollcallReport = mongoose.model('RollCallReport', reportschema);
+const rollcallReport = mongoose.model(modelName, reportschema);
 
 module.exports = rollcallReport;

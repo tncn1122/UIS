@@ -50,6 +50,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+// Router
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/students', studentsRouter);
@@ -84,3 +86,5 @@ var MODE = process.env.MODE || 'Dev';
 if(MODE === 'Prod'){
   app.listen(process.env.DEPLOY_PORT);
 }
+
+console.log('Server started successfully!')
