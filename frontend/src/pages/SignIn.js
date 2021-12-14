@@ -25,6 +25,7 @@ import { useDispatch } from "react-redux"
 import { updateUsername } from "../store/userSlice";
 import { useHistory } from "react-router-dom";
 import Session from "../utils/Session";
+import ErrorHandler from "../utils/Error";
 
 const { Title } = Typography;
 const { Header, Footer, Content } = Layout;
@@ -57,11 +58,7 @@ const SignIn = (props) => {
         })
       })
       .catch(err => {
-        notification.error({
-          message: 'Thất bại',
-          description: err?.response?.data?.message,
-          placement: 'bottomRight'
-        })
+        ErrorHandler.handle(err)
       })
   };
 

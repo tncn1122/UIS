@@ -47,6 +47,7 @@ import team4 from "../assets/images/team-4.jpg";
 import card from "../assets/images/info-card-1.jpg";
 import CountUp from 'react-countup'
 import { HttpUtils, URLUtils } from "../utils";
+import ErrorHandler from "../utils/Error";
 
 function Home() {
   const { Title, Text } = Typography;
@@ -66,7 +67,7 @@ function Home() {
         }
       })
       .catch(err => {
-        console.log(err);
+        ErrorHandler.handle(err)
       })
   }, [])
 
