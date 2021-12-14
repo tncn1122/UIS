@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/static/css/main.b17cfd4e.chunk.css",
-    "main.js": "/static/js/main.3884e225.chunk.js",
-    "main.js.map": "/static/js/main.3884e225.chunk.js.map",
+    "main.css": "/static/css/main.4e97f602.chunk.css",
+    "main.js": "/static/js/main.d86b4333.chunk.js",
+    "main.js.map": "/static/js/main.d86b4333.chunk.js.map",
     "runtime-main.js": "/static/js/runtime-main.65980b1a.js",
     "runtime-main.js.map": "/static/js/runtime-main.65980b1a.js.map",
-    "static/css/2.5f5f9133.chunk.css": "/static/css/2.5f5f9133.chunk.css",
-    "static/js/2.7b3b495b.chunk.js": "/static/js/2.7b3b495b.chunk.js",
-    "static/js/2.7b3b495b.chunk.js.map": "/static/js/2.7b3b495b.chunk.js.map",
+    "static/css/2.c130a5c2.chunk.css": "/static/css/2.c130a5c2.chunk.css",
+    "static/js/2.143d6851.chunk.js": "/static/js/2.143d6851.chunk.js",
+    "static/js/2.143d6851.chunk.js.map": "/static/js/2.143d6851.chunk.js.map",
     "index.html": "/index.html",
-    "static/css/2.5f5f9133.chunk.css.map": "/static/css/2.5f5f9133.chunk.css.map",
-    "static/css/main.b17cfd4e.chunk.css.map": "/static/css/main.b17cfd4e.chunk.css.map",
-    "static/js/2.7b3b495b.chunk.js.LICENSE.txt": "/static/js/2.7b3b495b.chunk.js.LICENSE.txt",
-    "static/js/main.3884e225.chunk.js.LICENSE.txt": "/static/js/main.3884e225.chunk.js.LICENSE.txt",
+    "static/css/2.c130a5c2.chunk.css.map": "/static/css/2.c130a5c2.chunk.css.map",
+    "static/css/main.4e97f602.chunk.css.map": "/static/css/main.4e97f602.chunk.css.map",
+    "static/js/2.143d6851.chunk.js.LICENSE.txt": "/static/js/2.143d6851.chunk.js.LICENSE.txt",
+    "static/js/main.d86b4333.chunk.js.LICENSE.txt": "/static/js/main.d86b4333.chunk.js.LICENSE.txt",
     "static/media/Google__G__Logo.svg.bb49f97a.png": "/static/media/Google__G__Logo.svg.bb49f97a.png",
     "static/media/bg-profile.9c36abe7.jpg": "/static/media/bg-profile.9c36abe7.jpg",
     "static/media/main.css": "/static/media/info-card-3.e73b3934.jpg",
@@ -25,7 +25,7 @@
     "static/media/home-decor-1.05e218fd.jpeg": "/static/media/home-decor-1.05e218fd.jpeg",
     "static/media/home-decor-2.b4e5397c.jpeg": "/static/media/home-decor-2.b4e5397c.jpeg",
     "static/media/home-decor-3.74d13fcb.jpeg": "/static/media/home-decor-3.74d13fcb.jpeg",
-    "static/media/img-signin.cba9a972.jpg": "/static/media/img-signin.cba9a972.jpg",
+    "static/media/img-signin.84621777.jpg": "/static/media/img-signin.84621777.jpg",
     "static/media/info-card-1.9dbf7537.jpg": "/static/media/info-card-1.9dbf7537.jpg",
     "static/media/logo-apple.ca32a70e.svg": "/static/media/logo-apple.ca32a70e.svg",
     "static/media/logo-atlassian.7db5f0dd.svg": "/static/media/logo-atlassian.7db5f0dd.svg",
@@ -45,9 +45,9 @@
   },
   "entrypoints": [
     "static/js/runtime-main.65980b1a.js",
-    "static/css/2.5f5f9133.chunk.css",
-    "static/js/2.7b3b495b.chunk.js",
-    "static/css/main.b17cfd4e.chunk.css",
-    "static/js/main.3884e225.chunk.js"
+    "static/css/2.c130a5c2.chunk.css",
+    "static/js/2.143d6851.chunk.js",
+    "static/css/main.4e97f602.chunk.css",
+    "static/js/main.d86b4333.chunk.js"
   ]
 }
