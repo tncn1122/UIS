@@ -1,5 +1,0 @@
-export * from './urls'
-export * from './text'
-export * from './constant'
-export * from './school'
-export * from './location'

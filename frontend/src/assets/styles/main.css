@@ -799,6 +799,7 @@ ul.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light.left-nav
 .signin {
   white-space: nowrap;
   margin: 0px 20px;
+  padding-bottom: 350px;
 }
 
 .signin span.ant-avatar {

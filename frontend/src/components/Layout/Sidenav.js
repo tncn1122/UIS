@@ -164,7 +164,7 @@ function Sidenav({ color }) {
     <>
       <div className="brand">
         <img src={logo} alt="" />
-        <span>Muse Dashboard</span>
+        <span>UIS - Quản Lí Sinh Viên</span>
       </div>
       <hr />
       <Menu theme="light" mode="inline">
@@ -178,7 +178,7 @@ function Sidenav({ color }) {
             >
               {dashboard}
             </span>
-            <span className="label">Dashboard</span>
+            <span className="label">Trang Chủ</span>
           </NavLink>
         </Menu.Item>
         <Menu.Item key="2">

@@ -9,7 +9,7 @@
   =========================================================
   * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Card,
@@ -45,11 +45,34 @@ import team2 from "../assets/images/team-2.jpg";
 import team3 from "../assets/images/team-3.jpg";
 import team4 from "../assets/images/team-4.jpg";
 import card from "../assets/images/info-card-1.jpg";
+import CountUp from 'react-countup'
+import { HttpUtils, URLUtils } from "../utils";
 
 function Home() {
   const { Title, Text } = Typography;
-
+  const [studentCount, setStudentCount] = useState(0)
+  const [classCount, setClassCount] = useState(0)
+  const [teacherCount, setTeacherCount] = useState(0)
   const onChange = (e) => console.log(`radio checked:${e.target.value}`);
+
+  useEffect(() => {
+    HttpUtils.get(URLUtils.buildBeURL('/dashboard'))
+      .then(resp => {
+        const { data } = resp
+        if (data && data.length > 0) {
+          setStudentCount(preProcessingCount(data[0].student_count))
+          setClassCount(preProcessingCount(data[0].class_count))
+          setTeacherCount(preProcessingCount(data[0].teacher_count))
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }, [])
+
+  const preProcessingCount = (data) => {
+    return data.split(' ', 1)
+  }
 
   const [reverse, setReverse] = useState(false);
 
@@ -141,33 +164,30 @@ function Home() {
   ];
   const count = [
     {
-      today: "Today’s Sales",
-      title: "$53,000",
-      persent: "+30%",
+      today: "Khoa",
+      title: "5",
+      icon: cart,
+      bnb: "bnb2",
+    },
+    {
+      today: "Sinh viên",
+      title: studentCount,
       icon: dollor,
       bnb: "bnb2",
     },
     {
-      today: "Today’s Users",
-      title: "3,200",
-      persent: "+20%",
+      today: "Giảng viên",
+      title: teacherCount,
       icon: profile,
       bnb: "bnb2",
     },
     {
-      today: "New Clients",
-      title: "+1,200",
-      persent: "-20%",
+      today: "Lớp học",
+      title: classCount,
       icon: heart,
       bnb: "redtext",
     },
-    {
-      today: "New Orders",
-      title: "$13,200",
-      persent: "10%",
-      icon: cart,
-      bnb: "bnb2",
-    },
+    
   ];
 
   const list = [
@@ -360,7 +380,19 @@ function Home() {
                     <Col xs={18}>
                       <span>{c.today}</span>
                       <Title level={3}>
-                        {c.title} <small className={c.bnb}>{c.persent}</small>
+                        <CountUp
+                          start={0}
+                          end={c.title}
+                          duration={2.75}
+                          useEasing
+                          useGrouping
+                          separator=","
+                          style={{
+                            fontSize: '30px',
+                            color: 'black',
+                            
+                          }}
+                        />
                       </Title>
                     </Col>
                     <Col xs={6}>

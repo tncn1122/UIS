@@ -24,7 +24,7 @@ function Main({ children }) {
   const [placement, setPlacement] = useState("right");
   const [sidenavColor, setSidenavColor] = useState("#1890ff");
   const [sidenavType, setSidenavType] = useState("transparent");
-  const [fixed, setFixed] = useState(false);
+  const [fixed, setFixed] = useState(true);
 
   const openDrawer = () => setVisible(!visible);
   const handleSidenavType = (type) => setSidenavType(type);

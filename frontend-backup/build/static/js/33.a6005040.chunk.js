@@ -1,2 +1,0 @@
-(this["webpackJsonpcode-tour-frontend"]=this["webpackJsonpcode-tour-frontend"]||[]).push([[33],{958:function(t,e,n){"use strict";n.r(e),n.d(e,"default",(function(){return d}));var c=n(46),o=n(0),u=n(77),i=n(11),s=n(57),r=n(6);function d(){var t=Object(o.useState)(!0),e=Object(c.a)(t,2),n=e[0];e[1];return Object(o.useEffect)((function(){setTimeout((function(){i.e.dispatchReduxAction(Object(s.logout)())}),100)}),[]),Object(r.jsx)(u.h,{isHidden:!n})}}}]);
-//# sourceMappingURL=33.a6005040.chunk.js.map

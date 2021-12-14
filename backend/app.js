@@ -38,7 +38,13 @@ require('./db/db')
 
 
 
-app.use(cors({credentials: "true", origin: 'http://localhost:3000'}))
+app.use(cors({
+  origin: function(origin, callback){
+    return callback(null, true);
+  },
+  optionsSuccessStatus: 200,
+  credentials: true
+}))
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -86,5 +92,6 @@ var MODE = process.env.MODE || 'Dev';
 if(MODE === 'Prod'){
   app.listen(process.env.DEPLOY_PORT);
 }
+
 
 console.log('Server started successfully!')

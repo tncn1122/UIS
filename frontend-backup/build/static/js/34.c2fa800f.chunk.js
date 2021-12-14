@@ -1,2 +1,0 @@
-(this["webpackJsonpcode-tour-frontend"]=this["webpackJsonpcode-tour-frontend"]||[]).push([[34],{963:function(t,n,o){"use strict";o.r(n),o.d(n,"default",(function(){return c}));o(0);var e=o(36),r=o(8),u=o(6);function c(){return Object(u.jsx)(e.a,{to:r.g.CONTEST.PUBLIC})}}}]);
-//# sourceMappingURL=34.c2fa800f.chunk.js.map
