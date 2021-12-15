@@ -21,7 +21,6 @@ function CreateSchema(modelSchema, modelName){
     return await model.findOneAndUpdate({ id: id, status: modelEnum.STATUS.DELETED })
   }
 
-
   return baseSchema
 }
 

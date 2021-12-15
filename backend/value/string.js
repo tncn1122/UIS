@@ -29,6 +29,13 @@ module.exports = {
   id_form: "Chỉ bao gồm chữ cái, chữ số và dấu gạch ngang!",
 
 
+  department_not_found: "Không tìm thấy khoa",
+  departmentId_exist: "Mã khoa đã tồn tại",
+
+
+  major_not_found: "Không tìm thấy chuyên ngành",
+  major_exist: "Mã chuyên ngành đã tồn tại",
+
   ontime: "Có mặt",
   late: "Trễ",
   absent: "Vắng",

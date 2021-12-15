@@ -7,6 +7,8 @@ const User = require('../models/User');
 const stringMessage = require('../value/string');
 const QR = require('../util/QR');
 const ClassInfo = require('../models/ClassInfo');
+const Department = require('../models/Department');
+const { STATUS } = require('../value/model');
 const router = express.Router()
 
 /**
@@ -37,7 +39,7 @@ const router = express.Router()
     const studentList = await User.find({role:"student"})
     const teacherList = await User.find({role:"teacher"})
     const classList = await ClassInfo.find({})
-
+    const departmentList = await Department.find({status: { $ne: STATUS.DELETED }})
 
 
     // Class.find({role:"student"}, function(err, users){
@@ -50,7 +52,8 @@ const router = express.Router()
     res.status(200).send(ResponseUtil.makeResponse({
         student_count: studentList.length + " học sinh", 
         teacher_count: teacherList.length + " giảng viên", 
-        class_count: classList.length + " lớp học"
+        class_count: classList.length + " lớp học",
+        department_count: departmentList.length + " khoa"
     }));
 })
 

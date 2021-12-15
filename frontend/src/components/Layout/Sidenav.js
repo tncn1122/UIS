@@ -168,7 +168,7 @@ function Sidenav({ color }) {
       </div>
       <hr />
       <Menu theme="light" mode="inline">
-        <Menu.Item key="1">
+        <Menu.Item key="dashboard">
           <NavLink to="/dashboard">
             <span
               className="icon"
@@ -181,7 +181,49 @@ function Sidenav({ color }) {
             <span className="label">Trang Chủ</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="2">
+        <Menu.Item className="menu-item-header" key="instituteLine">
+          Quản lí học viện
+        </Menu.Item>
+        <Menu.Item key="department">
+          <NavLink to="/departments">
+            <span
+              className="icon"
+              style={{
+                background: page === "tables" ? color : "",
+              }}
+            >
+              {tables}
+            </span>
+            <span className="label">Khoa Đào Tạo</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="major">
+          <NavLink to="/majors">
+            <span
+              className="icon"
+              style={{
+                background: page === "tables" ? color : "",
+              }}
+            >
+              {tables}
+            </span>
+            <span className="label">Chuyên Ngành</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="room">
+          <NavLink to="/rooms">
+            <span
+              className="icon"
+              style={{
+                background: page === "tables" ? color : "",
+              }}
+            >
+              {tables}
+            </span>
+            <span className="label">Phòng Học</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="subject">
           <NavLink to="/tables">
             <span
               className="icon"
@@ -191,10 +233,10 @@ function Sidenav({ color }) {
             >
               {tables}
             </span>
-            <span className="label">Tables</span>
+            <span className="label">Môn Học</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="3">
+        <Menu.Item key="billing">
           <NavLink to="/billing">
             <span
               className="icon"
@@ -207,7 +249,7 @@ function Sidenav({ color }) {
             <span className="label">Billing</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="4">
+        {/* <Menu.Item key="4">
           <NavLink to="/rtl">
             <span
               className="icon"
@@ -219,11 +261,37 @@ function Sidenav({ color }) {
             </span>
             <span className="label">RTL</span>
           </NavLink>
+        </Menu.Item> */}
+        <Menu.Item className="menu-item-header" key="userLine">
+          Quản lí người dùng
         </Menu.Item>
-        <Menu.Item className="menu-item-header" key="5">
-          Account Pages
+        <Menu.Item key="student">
+          <NavLink to="/students">
+            <span
+              className="icon"
+              style={{
+                background: page === "tables" ? color : "",
+              }}
+            >
+              {tables}
+            </span>
+            <span className="label">Sinh Viên</span>
+          </NavLink>
         </Menu.Item>
-        <Menu.Item key="6">
+        <Menu.Item key="teacher">
+          <NavLink to="/teachers">
+            <span
+              className="icon"
+              style={{
+                background: page === "tables" ? color : "",
+              }}
+            >
+              {tables}
+            </span>
+            <span className="label">Giảng Viên</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="profile">
           <NavLink to="/profile">
             <span
               className="icon"
@@ -236,36 +304,19 @@ function Sidenav({ color }) {
             <span className="label">Profile</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="7">
+        <Menu.Item key="signin">
           <NavLink to="/sign-in">
             <span className="icon">{signin}</span>
             <span className="label">Sign In</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="8">
+        <Menu.Item key="signtup">
           <NavLink to="/sign-up">
             <span className="icon">{signup}</span>
             <span className="label">Sign Up</span>
           </NavLink>
         </Menu.Item>
       </Menu>
-      <div className="aside-footer">
-        <div
-          className="footer-box"
-          style={{
-            background: color,
-          }}
-        >
-          <span className="icon" style={{ color }}>
-            {dashboard}
-          </span>
-          <h6>Need Help?</h6>
-          <p>Please check our docs</p>
-          <Button type="primary" className="ant-btn-sm ant-btn-block">
-            DOCUMENTATION
-          </Button>
-        </div>
-      </div>
     </>
   );
 }

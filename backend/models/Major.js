@@ -7,14 +7,12 @@ const modelName = 'Major'
 const majorSchema = baseSchema.CreateSchema({
   majorId: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },
   departmentId: {
-    type: String,
-    require: true,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId, ref: 'Department',
+    require: true
   },
   name: {
     type: String,
@@ -23,6 +21,6 @@ const majorSchema = baseSchema.CreateSchema({
   }
 }, modelName)
 
-const major = mongoose.model(modelName, majorSchema);
+const Major = mongoose.model(modelName, majorSchema);
 
-module.exports = major;
+module.exports = Major;

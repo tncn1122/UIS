@@ -6,7 +6,6 @@ const modelName = 'Classroom'
 const classRoomSchema = CreateSchema({
   id: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },

@@ -44,10 +44,10 @@ const SignIn = (props) => {
           const user = resp.data[0]
           dispatch(updateUsername());
           Session.setUserData({
-            name: user.name,
+            name: `${user.lastName} ${user.firstName}`,
             role: user.role,
             email: user.email,
-            id: user.id
+            id: user.userId
           })
           Session.setToken(resp.data[0].token)
         }

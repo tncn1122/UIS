@@ -7,7 +7,10 @@ const User = require('../models/User');
 const stringMessage = require('../value/string');
 const QR = require('../util/QR')
 const router = express.Router()
-const userUtil = require('../util/UserUtils')
+const userUtil = require('../util/UserUtils');
+const Major = require('../models/Major');
+const { major_not_found } = require('../value/string');
+const { STATUS } = require('../value/model');
 
 /**
  * @typedef Login
@@ -58,6 +61,11 @@ router.post('/', auth.isAdmin, async (req, res) => {
   // Create a new user
   try {
     let userInfo = req.body;
+    const userMajor = await Major.findOne({majorId: userInfo.majorId, status: {$ne: STATUS.DELETED}})
+    if(!userMajor){
+      throw new Error(major_not_found)
+    }
+    userInfo.majorId = userMajor
     userInfo.avtUrl = "";
     const user = new User(userInfo);
     user.qrUrl = QR.createQR(user.id)
@@ -85,11 +93,15 @@ router.post('/', auth.isAdmin, async (req, res) => {
  */
 router.get('/:id', auth.isUser, async (req, res) => {
   try {
-    let userResponse = await findUser(req.params.id);
+    let userResponse = await findUser(req.params.id)
     if (!userResponse) {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
     else {
+      const {majorId} = userResponse
+      const departmentId = majorId?.departmentId || {}
+      userResponse.departmentName = departmentId?.name || '-'
+      userResponse.majorName = majorId?.name || '-'
       if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
         userResponse = awaituserUtil.hideUserInfo(userResponse);
       }
@@ -126,7 +138,12 @@ router.put('/:id', auth.isUser, async (req, res) => {
     delete userUpdate['classes'];
     delete userUpdate['_id'];
     delete userUpdate['__v'];
-    await User.findOneAndUpdate({ id: user_id }, userUpdate, { runValidators: true }, function (error, raw) {
+    const userMajor = await Major.findOne({majorId: userUpdate.majorId, status: {$ne: STATUS.DELETED}})
+    if(!userMajor){
+      throw new Error(major_not_found)
+    }
+    userUpdate.majorId = userMajor
+    await User.findOneAndUpdate({ userId: user_id, status: {$ne: STATUS.DELETED}}, userUpdate, { runValidators: true }, function (error, raw) {
       if (!error) {
         if (raw) {
           raw.save();
@@ -140,16 +157,12 @@ router.put('/:id', auth.isUser, async (req, res) => {
         res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
       }
     });
-
-
   } catch (error) {
     console.log(error);
     if (error.code == 11000) {
-
       res.status(400).send(ResponseUtil.makeMessageResponse(ErrorUtil.makeErrorValidateMessage(JSON.stringify(error.keyValue))));
     }
     else {
-
       res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
     }
 
@@ -304,13 +317,26 @@ router.get('/admin/reset', async (req, res) => {
 router.delete('/:id', auth.isAdmin, async (req, res) => {
   try {
     let userId = req.params.id;
-    const user = await User.findOne({ id: userId });
+    const user = await User.findOne({ userId, status: { $ne: STATUS.DELETED } });
     if (user) {
-      if (user.classes.length > 0) {
-        res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.user_cant_delete_bc_delete))
-      }
-      await User.deleteOne({ id: userId })
-      res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.deleted_successfully))
+      // if (user.classes.length > 0) {
+      //   res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.user_cant_delete_bc_delete))
+      // }
+      await User.findOneAndUpdate({ userId, status: { $ne: STATUS.DELETED } }, { status: STATUS.DELETED }, { runValidators: true }, function (error, raw) {
+        if (!error) {
+          if (raw) {
+            raw.save();
+            res.status(201).send(ResponseUtil.makeResponse(raw));
+          }
+          else {
+            return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.room_not_found));
+          }
+        }
+        else {
+          res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
+        }
+      });
+      // res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.deleted_successfully))
     }
     else {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
@@ -338,7 +364,13 @@ router.get('/database/delete/:role', async (req, res) => {
 
 
 async function findUser(userId) {
-  return await User.findOne({ id: userId });
+  return await User.findOne({ userId, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'majorId',
+    populate: {
+      path: 'departmentId',
+      model: 'Department'
+    }
+  });
 }
 
 

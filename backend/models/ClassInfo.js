@@ -50,7 +50,6 @@ const baseSchema = require('./BaseSchema');
 const classInfoSchema = baseSchema.CreateSchema({
   id: {
     type: String,
-    unique: true,
     require: true,
     minLength: 3,
     trim: true

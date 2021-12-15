@@ -24,14 +24,13 @@ const modelName = 'User'
  */
 
 const userSchema = CreateSchema({
-  id: {
+  userId: {
     type: String,
-    unique: true,
     require: [true, stringMessage.id_required],
     minLength: 3,
     trim: true
   },
-  name: {
+  firstName: {
     type: String,
     required: [true, stringMessage.name_required],
     minLength: 3,
@@ -40,7 +39,6 @@ const userSchema = CreateSchema({
   email: {
     type: String,
     required: [true, stringMessage.email_required],
-    unique: true,
     lowercase: true,
     validate: value => {
       if (!validator.isEmail(value)) {
@@ -62,10 +60,6 @@ const userSchema = CreateSchema({
     default: enumModel.ENUM_ROLE[1],    // ['admin', 'student', 'teacher']
     require: [true, stringMessage.role_wrong]
   },
-  classes: [{
-    type: String,
-    require: true
-  }],
   qrUrl: {
     type: String,
   },
@@ -75,19 +69,9 @@ const userSchema = CreateSchema({
   token: {
     type: String,
   },
-
-
-  // new model
-  // TODO: Refactor
-  userId: {
-    type: String,
-    unique: true,
-    require: true,
-    trim: true
-  },
   majorId: {
-    type: Number,
-    require: true,
+    type: mongoose.Schema.Types.ObjectId, ref: 'Major',
+    require: true
   },
   birthDate: {
     type: Date,
@@ -97,19 +81,14 @@ const userSchema = CreateSchema({
     type: String,
     require: true,
   },
-  firstName: {
-    type: String,
-    require: true,
-  },
   lastName: {
-    type: Number,
+    type: String,
     require: true,
   },
   avatar: {
     type: String,
     require: true,
   },
-
   phone: {
     type: String,
     require: true,
@@ -119,11 +98,7 @@ const userSchema = CreateSchema({
     require: true,
   },
   address: {
-    type: Number,
-    require: true,
-  },
-  percentExam: {
-    type: Number,
+    type: String,
     require: true,
   },
   idNo: {
@@ -141,7 +116,7 @@ userSchema.pre('save', async function (next) {
     user.password = await bcrypt.hash(user.password, 8)
   }
   if (!user.avtUrl || (user.avtUrl && user.avtUrl.length == 0)) {
-    user.avtUrl = userUtil.generateAvatar(user.name)
+    user.avtUrl = userUtil.generateAvatar(`${user.lastName} ${user.firstName}`)
   }
   next()
 })
@@ -159,7 +134,7 @@ userSchema.methods.generateAuthToken = async function () {
 //=====
 userSchema.statics.findByCredentials = async (id, password) => {
   // Search for a user by id and password.
-  const user = await User.findOne({ id: id })
+  const user = await User.findOne({ userId: id })
   if (!user) {
     return null;
   }
@@ -172,7 +147,7 @@ userSchema.statics.findByCredentials = async (id, password) => {
 }
 
 userSchema.methods.isUnique = async (id, email) => {
-  const userId = await User.findOne({ id: id })
+  const userId = await User.findOne({ userId: id })
   if (userId) {
     return false;
   }

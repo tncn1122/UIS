@@ -6,7 +6,6 @@ const modelName = 'Rollcall'
 const rollcallSchema = baseSchema.CreateSchema({
   rollcallReportId: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },

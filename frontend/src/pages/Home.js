@@ -54,6 +54,7 @@ function Home() {
   const [studentCount, setStudentCount] = useState(0)
   const [classCount, setClassCount] = useState(0)
   const [teacherCount, setTeacherCount] = useState(0)
+  const [departmentCount, setDepartmentCount] = useState(0)
   const onChange = (e) => console.log(`radio checked:${e.target.value}`);
 
   useEffect(() => {
@@ -64,6 +65,7 @@ function Home() {
           setStudentCount(preProcessingCount(data[0].student_count))
           setClassCount(preProcessingCount(data[0].class_count))
           setTeacherCount(preProcessingCount(data[0].teacher_count))
+          setDepartmentCount(preProcessingCount(data[0].department_count))
         }
       })
       .catch(err => {
@@ -166,7 +168,7 @@ function Home() {
   const count = [
     {
       today: "Khoa",
-      title: "5",
+      title: departmentCount,
       icon: cart,
       bnb: "bnb2",
     },

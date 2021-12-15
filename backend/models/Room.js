@@ -6,7 +6,6 @@ const modelName = 'Room'
 const roomSchema = baseSchema.CreateSchema({
   roomId: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },

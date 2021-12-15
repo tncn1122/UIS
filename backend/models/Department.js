@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { departmentId_exist } = require('../value/string');
 const baseSchema = require('./BaseSchema')
 
 const modelName = 'Department'
@@ -6,7 +7,6 @@ const modelName = 'Department'
 const departmentSchema = baseSchema.CreateSchema({
   departmentId: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },
@@ -17,6 +17,16 @@ const departmentSchema = baseSchema.CreateSchema({
   }
 }, modelName)
 
-const department = mongoose.model(modelName, departmentSchema);
+departmentSchema.pre('save', async function (next) {
+  // Check exist
+  const department = this
+  const checkModel = Department.findOne({departmentId: department.departmentId})
+  if(checkModel){
+    throw new Error(departmentId_exist)
+  }
+  next()
+})
 
-module.exports = department;
+const Department = mongoose.model(modelName, departmentSchema);
+
+module.exports = Department;

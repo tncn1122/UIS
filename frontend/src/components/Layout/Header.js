@@ -16,6 +16,8 @@ import { NavLink, Link } from "react-router-dom";
 import avtar from "../../assets/images/team-2.jpg";
 import Session from "../../utils/Session"
 import { useHistory } from "react-router-dom";
+import { ENUM_ROLE } from "../../value/model";
+import UI from "../../utils/UI";
 
 
 const wifi = [
@@ -177,6 +179,7 @@ function Header({
     Session.clear()
     history.push("/sign-in");
   }
+  
 
   return (
     <>
@@ -206,7 +209,7 @@ function Header({
             {toggler}
           </Button>
           <Link to={`/user/${user?.id}`} className="btn-sign-in">
-            <span>{user?.name}</span>
+            <span>{`${UI.renderRole(user?.role)} - ${user?.name}`}</span>
           </Link>
         </Col>
       </Row>

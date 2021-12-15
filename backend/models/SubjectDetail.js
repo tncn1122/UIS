@@ -7,7 +7,6 @@ const modelName = 'SubjectDetail'
 const subjectDetailSchema = baseSchema.CreateSchema({
   subjectDetailId: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },

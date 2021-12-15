@@ -32,7 +32,6 @@ const modelName = 'RollcallReport'
 const reportschema = baseSchema.CreateSchema({
   id: {
     type: String,
-    unique: true,
     require: true,
     trim: true
   },

@@ -523,9 +523,9 @@ h4 {
   line-height: normal;
 }
 
-.ant-btn svg {
+/* .ant-btn svg {
   margin-right: 5px;
-}
+} */
 .layout-dashboard .header-control svg {
   width: 20px;
   height: 20px;
@@ -1530,7 +1530,7 @@ ul.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light.left-nav li svg path {
   padding-right: 24px;
 }
 .ant-card.tablespace .ant-card-body {
-  padding: 0px;
+  padding: 20px;
 }
 .tablespace .ant-card-head-title {
   font-size: 20px;

@@ -4,6 +4,7 @@ import Session from "./Session";
 
 export default class ErrorHandler {
   static handle(err) {
+    console.log(err)
     if(err?.response?.status === 401){
       Session.clear()
     }
