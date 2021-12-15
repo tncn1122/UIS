@@ -31,7 +31,8 @@
   },
   "scripts": {
     "start": "set PORT=8080 && react-scripts start",
-    "build": "react-scripts build",
+    "build": "sh -ac '. ./.env.${REACT_APP_ENV}; react-scripts build'",
+    "build:deploy": "REACT_APP_ENV=deploy npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
