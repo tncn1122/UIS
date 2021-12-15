@@ -51,7 +51,7 @@ const SignIn = (props) => {
           })
           Session.setToken(resp.data[0].token)
         }
-        history.push("/");
+        history.push("/dashboard");
         notification.success({
           message: 'Đăng nhập thành công',
           placement: 'bottomRight'

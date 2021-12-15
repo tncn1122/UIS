@@ -94,7 +94,7 @@ function CustomTable(props) {
 
   useEffect(() => {
     setcolumns(handleColumn(tableColumns));
-  }, [columns, tableColumns, searchedColumn, searchText])
+  }, [tableColumns, searchedColumn, searchText])
 
   const defaultPagination = {
     position: pagination,
