@@ -17,7 +17,7 @@ const departmentSchema = baseSchema.CreateSchema({
   }
 }, modelName)
 
-departmentSchema.pre('save', async function (next) {
+departmentSchema.pre('validate', async function (next) {
   // Check exist
   const department = this
   const checkModel = Department.findOne({departmentId: department.departmentId})
