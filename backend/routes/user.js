@@ -105,7 +105,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
       const departmentId = majorId?.departmentId || {}
       userResponse.departmentName = departmentId?.name || '-'
       userResponse.majorName = majorId?.name || '-'
-      userResponse.name = `${item.lastName} ${item.firstName}`
+      userResponse.name = `${userResponse.lastName} ${userResponse.firstName}`
       if ((req.user.role !== "admin") && req.user.userId !== req.params.id) {
         userResponse = await userUtil.hideUserInfo(userResponse);
       }
