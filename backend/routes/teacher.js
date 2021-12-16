@@ -64,6 +64,8 @@ router.get('/:id', auth.isUser, async (req, res) => {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
     else {
+      userResponse = userResponse.toObject()
+      userResponse.name = `${userResponse.lastName} ${userResponse.firstName}`
       if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
         userResponse = userUtil.hideUserInfo(userResponse);
       }
