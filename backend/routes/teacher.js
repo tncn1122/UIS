@@ -33,7 +33,10 @@ router.get('/', auth.isAdmin, async (req, res) => {
     }
     else {
       console.log((users));
-      res.status(200).send(ResponseUtil.makeResponse(users))
+      res.status(200).send(ResponseUtil.makeResponse(users.map(item => ({
+        ...item.toObject(),
+        name: `${item.lastName} ${item.firstName}`
+      }))))
     }
   }).populate({
     path: 'majorId',

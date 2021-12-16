@@ -35,17 +35,21 @@ const subjectSchema = baseSchema.CreateSchema({
     type: Date,
     require: true,
   },
-  schedule: {
-    type: String,
-    require: true,
-  },
   days: {
     type: Number,
-    require: true,
+    required: true,
   },
+  schedule: [{
+    type: String
+  }],
   dayOfWeek: {
     type: String,
-    require: true,
+    required: true,
+    enum: {
+      values: ['2', '3', '4', '5', '6', '7'],
+      message: "Ngày không đúng!"
+    },
+    default: 0,
   },
 
   percentDiligence: {

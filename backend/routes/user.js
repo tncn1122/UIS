@@ -40,8 +40,10 @@ router.get('/', auth.isAdmin, async (req, res) => {
       res.status(500).send(ResponseUtil.makeMessageResponse(error.message))
     }
     else {
-      console.log((users));
-      res.status(200).send(ResponseUtil.makeResponse(users))
+      res.status(200).send(ResponseUtil.makeResponse(users.map(item => ({
+        ...item,
+        name: `${item.lastName} ${item.firstName}`
+      }))))
     }
   });
 })
@@ -103,6 +105,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
       const departmentId = majorId?.departmentId || {}
       userResponse.departmentName = departmentId?.name || '-'
       userResponse.majorName = majorId?.name || '-'
+      userResponse.name = `${item.lastName} ${item.firstName}`
       if ((req.user.role !== "admin") && req.user.userId !== req.params.id) {
         userResponse = await userUtil.hideUserInfo(userResponse);
       }
