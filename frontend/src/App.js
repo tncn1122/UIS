@@ -27,8 +27,9 @@ function App(props) {
         <Route path="/sign-up" exact component={SignUp} />
         <Route path="/sign-in" exact component={SignIn} />
         <Main>
-          <Route exact path="/tables" component={Tables} />
+          <Route exact path="/" component={Home} />
           <Route exact path="/dashboard" component={Home} />
+          <Route exact path="/tables" component={Tables} />
           <Route exact path="/departments" component={DepartmentPage} />
           <Route exact path="/majors" component={MajorPage} />
           <Route exact path="/billing" component={Billing} />

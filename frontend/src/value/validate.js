@@ -25,8 +25,8 @@ module.exports = {
       message: 'Chỉ bao gồm chữ cái, số và gạch ngang.',
     },
     {
-      pattern: /^.{1,20}$/,
-      message: 'Mã không được quá 20 kí tự.',
+      pattern: /^.{5,20}$/,
+      message: 'Độ dài từ 5 đến 20 kí tự.',
     },
   ],
   NUMBER_VALIDATE: [
@@ -53,8 +53,8 @@ module.exports = {
       message: 'Chỉ bao gồm chữ cái, số, dấu . và @.',
     },
     {
-      pattern: /^.{1,20}$/,
-      message: 'Mã không được quá 20 kí tự.',
+      pattern: /^.{1,50}$/,
+      message: 'Không được quá 20 kí tự.',
     },
   ],
 };

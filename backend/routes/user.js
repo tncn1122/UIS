@@ -68,7 +68,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
     userInfo.majorId = userMajor
     userInfo.avtUrl = "";
     const user = new User(userInfo);
-    user.qrUrl = QR.createQR(user.id)
+    user.qrUrl = QR.createQR(user.userId)
     await user.generateAuthToken();
     await user.save();
     res.status(201).send(ResponseUtil.makeResponse(user));
@@ -98,12 +98,13 @@ router.get('/:id', auth.isUser, async (req, res) => {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
     else {
+      userResponse = userResponse.toObject()
       const {majorId} = userResponse
       const departmentId = majorId?.departmentId || {}
       userResponse.departmentName = departmentId?.name || '-'
       userResponse.majorName = majorId?.name || '-'
-      if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
-        userResponse = awaituserUtil.hideUserInfo(userResponse);
+      if ((req.user.role !== "admin") && req.user.userId !== req.params.id) {
+        userResponse = await userUtil.hideUserInfo(userResponse);
       }
       res.status(200).send(ResponseUtil.makeResponse(userResponse));
     }
@@ -193,13 +194,13 @@ router.put('/:id/password', auth.isUser, async (req, res) => {
 
     if (current_user.role !== 'admin') {
       // check if old password is correct  
-      const user = await User.findByCredentials(current_user.id, userUpdate.old_password)
+      const user = await User.findByCredentials(current_user.userId, userUpdate.old_password)
       if (!user) {
         return res.status(401).send(ResponseUtil.makeMessageResponse(stringMessage.wrong_password));
       }
     }
     else {
-      current_user = await User.findOne({ id: user_id })
+      current_user = await User.findOne({ userId: user_id })
       if (!current_user) {
         return res.status(401).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found));
       }

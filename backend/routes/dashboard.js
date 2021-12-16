@@ -36,9 +36,9 @@ const router = express.Router()
  */
  router.get('/', auth.isAdmin, async(req, res) => {
 
-    const studentList = await User.find({role:"student"})
-    const teacherList = await User.find({role:"teacher"})
-    const classList = await ClassInfo.find({})
+    const studentList = await User.find({role:"student", status: {$ne: STATUS.DELETED}})
+    const teacherList = await User.find({role:"teacher", status: {$ne: STATUS.DELETED}})
+    const classList = await ClassInfo.find({status: {$ne: STATUS.DELETED}})
     const departmentList = await Department.find({status: { $ne: STATUS.DELETED }})
 
 

@@ -14,10 +14,12 @@ import {
   Modal,
   notification,
   Spin,
+  Menu,
+  Dropdown,
 } from "antd";
 
-import { ExclamationCircleOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SettingOutlined, ToTopOutlined, UserOutlined } from "@ant-design/icons";
+import { Link, useHistory } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { HttpUtils, URLUtils } from "../../utils";
 import ErrorHandler from "../../utils/Error";
@@ -60,7 +62,7 @@ function StudentPage() {
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listDepartments, setListDepartments] = useState([])
   const [listMajors, setListMajors] = useState([])
-
+  let history = useHistory()
 
   const tableColume = [
     {
@@ -104,6 +106,7 @@ function StudentPage() {
       title: "TRẠNG THÁI",
       key: "status",
       dataIndex: "status",
+      width: "10%",
       defaultFilteredValue: [STATUS.ACTIVE],
       filters: [
         {
@@ -121,18 +124,43 @@ function StudentPage() {
     {
       title: 'HIỆU CHỈNH',
       key: 'action',
-      width: "10%",
+      width: "5%",
       render: (value, record) => (
         <>
-          <Space>
-            <Button disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }}>Sửa</Button>
-            <Button disabled={record.status === STATUS.DELETED || record.majorsCount > 0} onClick={(e) => { showConfirm(record) }}>Xóa</Button>
-          </Space>
+          {
+            <Dropdown overlay={() => (dropdownOptions(record))} placement="bottomRight" arrow>
+              <Button icon={<SettingOutlined />}
+                style={{
+                  padding: '0px 0px',
+                  fontSize: '20px',
+                  boxShadow: 'none',
+                  borderRadius: '6px',
+                  width: '50px',
+                  height: '42px'
+                }}
+              />
+            </Dropdown>
+          }
         </>
       )
     }
   ];
 
+  const dropdownOptions = (record) => (
+    <Menu disabled={record.status === STATUS.DELETED}>
+      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => {history.push(`/user/${record.userId}`)}}>
+        Trang Cá Nhân
+      </Menu.Item>
+      <Menu.Item key="1" icon={<EditOutlined />}  onClick={(e) => { onClickEditButton(record) }}>
+        {/* <Button type="text" disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }} style={{boxShadow: 'none'}}>Sửa</Button> */}
+        Sửa
+      </Menu.Item>
+      <Menu.Item key="2" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
+        Xóa
+      </Menu.Item>
+    </Menu>
+  );
+  
   useEffect(() => {
     fetchData()
   }, [])
@@ -204,7 +232,7 @@ function StudentPage() {
 
   const preProcessingData = (data) => {
     return data.map(item => {
-      const {majorId: {departmentId}} = item
+      const { majorId: { departmentId } } = item
       return ({
         ...item,
         departmentName: departmentId?.name || '-'

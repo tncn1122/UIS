@@ -25,6 +25,7 @@ import {
   message,
   Spin,
   Image,
+  Skeleton,
 } from "antd";
 
 import {
@@ -47,6 +48,7 @@ import project3 from "../../assets/images/home-decor-3.jpeg";
 import { HttpUtils, URLUtils } from "../../utils";
 import ErrorHandler from "../../utils/Error";
 import UI from "../../utils/UI";
+import { ENUM_ROLE } from "../../value/model";
 
 function Profile(props) {
   const [imageURL, setImageURL] = useState(false);
@@ -57,7 +59,7 @@ function Profile(props) {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [userId])
 
   const fetchData = () => {
     setIsFetchingData(true)
@@ -159,6 +161,16 @@ function Profile(props) {
       avatar: convesionImg5,
       description: "Hi! I need more information…",
     },
+    {
+      title: "Nick Daniel",
+      avatar: convesionImg5,
+      description: "Hi! I need more information…",
+    },
+    {
+      title: "Nick Daniel",
+      avatar: convesionImg5,
+      description: "Hi! I need more information…",
+    },
   ];
 
   const project = [
@@ -203,9 +215,16 @@ function Profile(props) {
                   <Avatar size={74} shape="square" src={userInfo.avtUrl} />
 
                   <div className="avatar-info">
-                    <h4 className="font-semibold m-0">{`${userInfo.lastName} ${userInfo.firstName}`}</h4>
-                    <p>{UI.renderRole(userInfo.role)}</p>
+                    {userInfo.lastName && userInfo.firstName ? (
+                      <>
+                        <h4 className="font-semibold m-0">{`${userInfo.lastName} ${userInfo.firstName}`}</h4>
+                        <p>{UI.renderRole(userInfo.role)}</p>
+                      </>
+                    ) : (
+                      <Skeleton active />
+                    )}
                   </div>
+
                 </Avatar.Group>
               </Col>
               <Col
@@ -274,7 +293,7 @@ function Profile(props) {
           <Col span={24} md={8} className="mb-24">
             <Card
               bordered={false}
-              title={<h6 className="font-semibold m-0">Conversations</h6>}
+              title={<h6 className="font-semibold m-0">{userInfo.role === ENUM_ROLE[2] ? 'Các lớp đang dạy' : 'Các lớp đang học'}</h6>}
               className="header-solid h-full"
               bodyStyle={{ paddingTop: 0, paddingBottom: 16 }}
             >
@@ -318,13 +337,13 @@ function Profile(props) {
                 <Descriptions.Item label="Khoa" span={3}>
                   {userInfo.departmentName}
                 </Descriptions.Item>
-                <Descriptions.Item label="Mobile" span={3}>
+                <Descriptions.Item label="Điện Thoại" span={3}>
                   {userInfo.phone}
                 </Descriptions.Item>
                 <Descriptions.Item label="Email" span={3}>
                   {userInfo.email}
                 </Descriptions.Item>
-                <Descriptions.Item label="Location" span={3}>
+                <Descriptions.Item label="Địa Chỉ" span={3}>
                   {userInfo.address}
                 </Descriptions.Item>
               </Descriptions>
@@ -332,7 +351,7 @@ function Profile(props) {
           </Col>
 
         </Row>
-        <Card
+        {/* <Card
           bordered={false}
           className="header-solid mb-24"
           title={
@@ -387,7 +406,7 @@ function Profile(props) {
               </Upload>
             </Col>
           </Row>
-        </Card>
+        </Card> */}
       </Spin>
     </>
   );

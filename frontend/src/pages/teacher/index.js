@@ -14,10 +14,12 @@ import {
   Modal,
   notification,
   Spin,
+  Dropdown,
+  Menu,
 } from "antd";
 
-import { ExclamationCircleOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SettingOutlined, ToTopOutlined, UserOutlined } from "@ant-design/icons";
+import { Link, useHistory } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { HttpUtils, URLUtils } from "../../utils";
 import ErrorHandler from "../../utils/Error";
@@ -59,6 +61,8 @@ function TeacherPage() {
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listDepartment, setListDepartment] = useState([])
+  const [listMajors, setListMajors] = useState([])
+  let history = useHistory()
 
 
   const tableColume = [
@@ -120,17 +124,42 @@ function TeacherPage() {
     {
       title: 'HIỆU CHỈNH',
       key: 'action',
-      width: "10%",
+      width: "5%",
       render: (value, record) => (
         <>
-          <Space>
-            <Button disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }}>Sửa</Button>
-            <Button disabled={record.status === STATUS.DELETED || record.majorsCount > 0} onClick={(e) => { showConfirm(record) }}>Xóa</Button>
-          </Space>
+          {
+            <Dropdown overlay={() => (dropdownOptions(record))} placement="bottomRight" arrow>
+              <Button icon={<SettingOutlined />}
+                style={{
+                  padding: '0px 0px',
+                  fontSize: '20px',
+                  boxShadow: 'none',
+                  borderRadius: '6px',
+                  width: '50px',
+                  height: '42px'
+                }}
+              />
+            </Dropdown>
+          }
         </>
       )
     }
   ];
+
+  const dropdownOptions = (record) => (
+    <Menu disabled={record.status === STATUS.DELETED}>
+      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => {history.push(`/user/${record.userId}`)}}>
+        Trang Cá Nhân
+      </Menu.Item>
+      <Menu.Item key="1" icon={<EditOutlined />}  onClick={(e) => { onClickEditButton(record) }}>
+        {/* <Button type="text" disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }} style={{boxShadow: 'none'}}>Sửa</Button> */}
+        Sửa
+      </Menu.Item>
+      <Menu.Item key="2" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
+        Xóa
+      </Menu.Item>
+    </Menu>
+  );
 
   useEffect(() => {
     fetchData()
@@ -172,6 +201,7 @@ function TeacherPage() {
         setIsFetchingData(false)
       })
     fetchDepartments()
+    fetchMajors()
   }
 
   const fetchDepartments = () => {
@@ -180,6 +210,19 @@ function TeacherPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setListDepartment(data.filter(item => (item.status !== STATUS.DELETED)))
+        }
+      })
+      .catch(err => {
+        ErrorHandler.handle(err)
+      })
+  }
+
+  const fetchMajors = () => {
+    HttpUtils.get(URLUtils.buildBeURL('/majors'))
+      .then(resp => {
+        const { data } = resp
+        if (data && data.length > 0) {
+          setListMajors(data.filter(item => (item.status !== STATUS.DELETED)))
         }
       })
       .catch(err => {
@@ -267,6 +310,7 @@ function TeacherPage() {
         teacherId={currentData.teacherId}
         name={currentData.name}
         fetchData={fetchData}
+        listMajors={listMajors}
       />
       <Modal
 

@@ -20,7 +20,7 @@ const departmentSchema = baseSchema.CreateSchema({
 departmentSchema.pre('validate', async function (next) {
   // Check exist
   const department = this
-  const checkModel = Department.findOne({departmentId: department.departmentId})
+  const checkModel = await Department.findOne({departmentId: department.departmentId, status: {$ne: STATUS.DELETED}})
   if(checkModel){
     throw new Error(departmentId_exist)
   }
