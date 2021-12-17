@@ -160,6 +160,12 @@ router.put('/:id', auth.isUser, async (req, res) => {
       else {
         res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
       }
+    }).populate({
+      path: 'majorId',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
     });
   } catch (error) {
     console.log(error);
@@ -203,7 +209,13 @@ router.put('/:id/password', auth.isUser, async (req, res) => {
       }
     }
     else {
-      current_user = await User.findOne({ userId: user_id })
+      current_user = await User.findOne({ userId: user_id }).populate({
+        path: 'majorId',
+        populate: {
+          path: 'departmentId',
+          model: 'Department'
+        }
+      });
       if (!current_user) {
         return res.status(401).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found));
       }
@@ -245,7 +257,13 @@ router.post('/login', async (req, res) => {
   try {
     const { id, password } = req.body
     if (id && password) {
-      const user = await User.findByCredentials(id, password)
+      const user = await User.findByCredentials(id, password).populate({
+        path: 'majorId',
+        populate: {
+          path: 'departmentId',
+          model: 'Department'
+        }
+      });
       if (!user) {
         return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.invalid_credentials));
       }
@@ -338,6 +356,12 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
         }
         else {
           res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
+        }
+      }).populate({
+        path: 'majorId',
+        populate: {
+          path: 'departmentId',
+          model: 'Department'
         }
       });
       // res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.deleted_successfully))

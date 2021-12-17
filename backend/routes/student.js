@@ -61,7 +61,13 @@ router.get('/', auth.isAdmin, async (req, res) => {
  */
 router.get('/:id', auth.isUser, async (req, res) => {
   try {
-    let userResponse = await User.findOne({ id: req.params.id, role: 'student' })
+    let userResponse = await User.findOne({ userId: req.params.id, role: 'student' }).populate({
+      path: 'majorId',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    });
     if (!userResponse) {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
