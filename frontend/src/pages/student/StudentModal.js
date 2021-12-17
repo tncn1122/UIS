@@ -37,7 +37,7 @@ const StudentModal = (props) => {
 
   const onSubmit = value => {
     value.birthDate = value.birthDate.format()
-    value.role = ENUM_ROLE[0] // student
+    value.role = ENUM_ROLE[1] // student
     if (modalType === 'edit') {
       editStudent(value)
     }
@@ -100,7 +100,7 @@ const StudentModal = (props) => {
             .validateFields()
             .then(value => {
               onSubmit(value)
-              // form.resetFields()
+              form.resetFields()
             })
             .catch(info => {
               console.log('Validate Failed:', info)

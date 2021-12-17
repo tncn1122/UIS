@@ -63,7 +63,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
   // Create a new user
   try {
     let userInfo = req.body;
-    const userMajor = await Major.findOne({majorId: userInfo.majorId, status: {$ne: STATUS.DELETED}})
+    const userMajor = await Major.findOne({majorId: userInfo.majorId, status: {$ne: STATUS.DELETED}}).populate('departmentId')
     if(!userMajor){
       throw new Error(major_not_found)
     }
@@ -142,7 +142,7 @@ router.put('/:id', auth.isUser, async (req, res) => {
     delete userUpdate['classes'];
     delete userUpdate['_id'];
     delete userUpdate['__v'];
-    const userMajor = await Major.findOne({majorId: userUpdate.majorId, status: {$ne: STATUS.DELETED}})
+    const userMajor = await Major.findOne({majorId: userUpdate.majorId, status: {$ne: STATUS.DELETED}}).populate('departmentId')
     if(!userMajor){
       throw new Error(major_not_found)
     }
