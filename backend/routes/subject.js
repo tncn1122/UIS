@@ -243,7 +243,17 @@ router.get('/:id', auth.isUser, async (req, res) => {
 })
 
 async function getStudentInSubject(subjectObj) {
-  const listStudents = await SubjectStudent.find({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate('studentId')
+  const listStudents = await SubjectStudent.find({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'studentId',
+    populate: {
+      path: 'majorId',
+      model: 'Major',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    }
+  })
   return listStudents.map((item) => {
     const {studentId} = item
     return studentId
@@ -251,12 +261,28 @@ async function getStudentInSubject(subjectObj) {
 }
 
 async function getTeacherInSubject(subjectObj) {
-  const teacher = await SubjectTeacher.findOne({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate('teacherId')
+  const teacher = await SubjectTeacher.findOne({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'teacherId',
+    populate: {
+      path: 'majorId',
+      model: 'Major',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    }
+  })
   return teacher?.teacherId
 }
 
 async function findStudent(userId) {
-  return await User.findOne({ userId, status: { $ne: STATUS.DELETED } });
+  return await User.findOne({ userId, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'majorId',
+    populate: {
+      path: 'departmentId',
+      model: 'Department'
+    }
+  });
 }
 
 async function createStudentList(student_id_list) {
