@@ -40,8 +40,8 @@ const SubjectTeacher = require('../models/SubjectTeacher');
 router.post('/', auth.isAdmin, async (req, res) => {
   // Create a new class
   try {
-    const roomId = await Room.findOne({roomId : req.body.roomId, status: { $ne: STATUS.DELETED }})
-    if(!roomId){
+    const roomId = await Room.findOne({ roomId: req.body.roomId, status: { $ne: STATUS.DELETED } })
+    if (!roomId) {
       throw new Error(room_not_found)
     }
     let classInfo = classUtil.createBaseClassInfo(req.body);
@@ -55,7 +55,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
     // if (req.body.hasOwnProperty('students')) {
     //   classInfo.students = await createStudentList(req.body.students);
     // }
- 
+
     // if (req.body.hasOwnProperty('dateStart')) {
     //   if (!classUtil.validateDate(classInfo.dateStart)) {
     //     throw new Error(stringMessage.date_wrong);
@@ -70,7 +70,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
     const savedSubject = await newClass.save();
 
     // update student
-  
+
     // update teacher
 
     res.status(201).send(ResponseUtil.makeResponse(savedSubject));
@@ -93,17 +93,24 @@ router.post('/', auth.isAdmin, async (req, res) => {
  * @security Bearer
  */
 router.get('/', auth.isAdmin, async (req, res) => {
-  Subject.find({}, function (err, subjects) {
-    //console.log(users);
-    if (err) {
-      console.log(err);
-      res.status(500).send(ResponseUtil.makeMessageResponse(err.message))
-    }
-    else {
-      console.log((subjects));
-      res.status(200).send(ResponseUtil.makeResponse(subjects))
-    }
-  }).populate('roomId');
+  try{
+    const subjects = await Subject.find({}).populate('roomId');
+    const listSubject = await Promise.all(subjects.map(async (item) => {
+      const subjectObj = item.toObject()
+      const students = await getStudentInSubject(subjectObj)
+      const teacher = await getTeacherInSubject(subjectObj)
+      return {
+        ...subjectObj,
+        students,
+        teacher
+      }
+    }))
+    console.log(listSubject);
+    res.status(200).send(ResponseUtil.makeResponse(listSubject))
+  }
+  catch(err){
+    res.status(500).send(ResponseUtil.makeMessageResponse(err.message));
+  }
 })
 
 /**
@@ -217,13 +224,13 @@ router.get('/:id', auth.isUser, async (req, res) => {
   }
 })
 
-async function getStudentInSubject(subjectObj){
-  const listStudents = await SubjectStudent.find({subjectId: subjectObj, status: { $ne: STATUS.DELETED }}).populate('studentId')
+async function getStudentInSubject(subjectObj) {
+  const listStudents = await SubjectStudent.find({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate('studentId')
   return listStudents
 }
 
-async function getTeacherInSubject(subjectObj){
-  const teacher = await SubjectTeacher.findOne({subjectId: subjectObj, status: { $ne: STATUS.DELETED }}).populate('teacherId')
+async function getTeacherInSubject(subjectObj) {
+  const teacher = await SubjectTeacher.findOne({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate('teacherId')
   return teacher
 }
 
