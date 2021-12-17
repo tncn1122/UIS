@@ -10,19 +10,24 @@ const QR = require('../util/QR')
 const router = express.Router()
 const classUtil = require('../util/ClassUtils')
 const userUtil = require('../util/UserUtils')
-const moment = require('moment-timezone')
+const moment = require('moment-timezone');
+const subject = require('../models/Subject');
+const Subject = require('../models/Subject');
+const Room = require('../models/Room');
+const { room_not_found } = require('../value/string');
+const { STATUS } = require('../value/model');
 
 /**
  * @typedef ListClasses
  * @property {integer} count.required - số lượng phần tử
- * @property {Array.<Class>} data.required - các phần tử
+ * @property {Array.<Subject>} data.required - các phần tử
  */
 
 /**
  * Tạo lớp. Chỉ có tài khoản có quyền Admin mới thực hiện được chức năng này.
- * @route POST /classes/
+ * @route POST /subjects/
  * @group Class
- * @param {ClassInput.model} class_info.body.required - Body là file json chứa thông tin lớp, những mục (students, monitors) có thể không cần gửi trong json.
+ * @param {SubjectInput.model} subject_info.body.required - Body là file json chứa thông tin lớp, những mục (students, monitors) có thể không cần gửi trong json.
  * @returns {ListClasses.model} 200 - Thông tin tài khoản và token ứng với tài khoản đó.
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
@@ -31,43 +36,40 @@ const moment = require('moment-timezone')
 router.post('/', auth.isAdmin, async (req, res) => {
   // Create a new class
   try {
+    const roomId = await Room.findOne({roomId : req.body.roomId, status: { $ne: STATUS.DELETED }})
+    if(!roomId){
+      throw new Error(room_not_found)
+    }
     let classInfo = classUtil.createBaseClassInfo(req.body);
-
-    const teacher = await User.findOne({ id: req.body.teacher.id });
-    if (!teacher) {
-      return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found + "Giảng viên: " + req.body.teacher.id));
-    }
-    classInfo.teacher = teacher;
-    classInfo.students = [];
-    if (req.body.hasOwnProperty('students')) {
-      classInfo.students = await createStudentList(req.body.students);
-    }
-    classInfo.monitors = [];
-    if (req.body.hasOwnProperty('monitors')) {
-      classInfo.monitors = await createStudentList(req.body.monitors);
-    }
-    if (req.body.hasOwnProperty('dateStart')) {
-      if (!classUtil.validateDate(classInfo.dateStart)) {
-        throw new Error(stringMessage.date_wrong);
-      }
-    }
-    else {
-      classInfo.dateStart = classUtil.formatDate(moment());
-    }
+    classInfo.roomId = roomId
+    // const teacher = await User.findOne({ id: req.body.teacher.id });
+    // if (!teacher) {
+    //   return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found + "Giảng viên: " + req.body.teacher.id));
+    // }
+    // classInfo.teacher = teacher;
+    // classInfo.students = [];
+    // if (req.body.hasOwnProperty('students')) {
+    //   classInfo.students = await createStudentList(req.body.students);
+    // }
+ 
+    // if (req.body.hasOwnProperty('dateStart')) {
+    //   if (!classUtil.validateDate(classInfo.dateStart)) {
+    //     throw new Error(stringMessage.date_wrong);
+    //   }
+    // }
+    // else {
+    //   classInfo.dateStart = classUtil.formatDate(moment());
+    // }
 
     console.log(classInfo);
-    const newClass = new ClassInfo(classInfo);
-    await newClass.save();
+    const newClass = new Subject(classInfo);
+    const savedSubject = await newClass.save();
 
     // update student
-    if (req.body.hasOwnProperty('students')) {
-      await updateStudentClass(req.body.students.map(student_id => [student_id.id, 1]), classInfo.id);
-    }
-
+  
     // update teacher
-    await updateTeacherClass(teacher.id, 1, classInfo.id);
 
-    res.status(201).send(ResponseUtil.makeResponse(classInfo));
+    res.status(201).send(ResponseUtil.makeResponse(savedSubject));
     // res.status(200).send(ResponseUtil.makeMessageResponse("Ok thơm bơ"))
   } catch (error) {
     console.log(error);
@@ -87,7 +89,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
  * @security Bearer
  */
 router.get('/', auth.isAdmin, async (req, res) => {
-  ClassInfo.find({}, function (err, classes) {
+  Subject.find({}, function (err, classes) {
     //console.log(users);
     if (err) {
       console.log(err);
@@ -97,7 +99,7 @@ router.get('/', auth.isAdmin, async (req, res) => {
       console.log((classes));
       res.status(200).send(ResponseUtil.makeResponse(classes))
     }
-  }).populate('students').populate('monitors').populate('teacher');
+  }).populate('roomId');
 })
 
 /**

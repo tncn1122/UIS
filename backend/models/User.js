@@ -134,7 +134,7 @@ userSchema.methods.generateAuthToken = async function () {
 //=====
 userSchema.statics.findByCredentials = async (id, password) => {
   // Search for a user by id and password.
-  const user = await User.findOne({ userId: id }).populate({
+  const user = await User.findOne({ userId: id, status: { $ne: STATUS.DELETED } }).populate({
     path: 'majorId',
     populate: {
       path: 'departmentId',

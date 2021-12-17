@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const baseSchema = require('./BaseSchema')
+const classUtil = require('../util/ClassUtils');
 
 const modelName = 'Subject'
 
@@ -16,7 +17,7 @@ const subjectSchema = baseSchema.CreateSchema({
     trim: true
   },
   roomId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, ref: 'Room',
     require: true,
   },
   name: {
@@ -74,6 +75,17 @@ const subjectSchema = baseSchema.CreateSchema({
   },
 }, modelName)
 
-const subject = mongoose.model(modelName, subjectSchema);
+const Subject = mongoose.model(modelName, subjectSchema);
 
-module.exports = subject;
+subjectSchema.pre('save', function (next) {
+  const classInfo = this;
+  classUtil.validateDays(classInfo.days);
+  classUtil.validateDate(classInfo.dateStart);
+  classInfo.schedule = classUtil.genSchedule(classInfo.dateStart, +
+    classInfo.shift, classInfo.days, classInfo.dayOfWeek);
+
+  next()
+})
+
+
+module.exports = Subject;

@@ -64,7 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/students', studentsRouter);
-app.use('/api/classes', classesRouter);
+app.use('/api/subjects', classesRouter);
 app.use('/api/teachers', teachersRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/reports', reportRouter);

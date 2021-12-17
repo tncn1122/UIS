@@ -15,6 +15,6 @@ const roomSchema = baseSchema.CreateSchema({
   }
 }, modelName)
 
-const room = mongoose.model(modelName, roomSchema);
+const Room = mongoose.model(modelName, roomSchema);
 
-module.exports = room;
+module.exports = Room;

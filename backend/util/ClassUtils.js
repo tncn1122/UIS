@@ -38,7 +38,8 @@ function formatDate(date, stringDate = "DD-MM-YYYY") {
 }
 
 function currentDate() {
-  return formatDate(moment());
+  // return formatDate(moment());
+  return moment()
 }
 
 function isChangeExpired(startDate) {
@@ -66,14 +67,20 @@ function genSchedule(startDate, shift, days, dayOfWeek) {
 
 function createBaseClassInfo(classInfo) {
   return {
-    id: classInfo.id || "",
+    subjectId: classInfo.subjectId || "",
     name: classInfo.name || "",
-    room: classInfo.room || "",
     credit: classInfo.credit || 0,
     dayOfWeek: classInfo.dayOfWeek || "2",
     shift: classInfo.shift || '0',
     days: classInfo.days || 0,
-    dateStart: classInfo.dateStart || currentDate()
+    startDate: classInfo.startDate || currentDate(),
+    credits: classInfo.credit || 0,
+    semester: classInfo.semester || 0,
+    percentDiligence: classInfo.percentDiligence || 0,
+    percentTest: classInfo.percentTest || 0,
+    percentPractice: classInfo.percentPractice || 0,
+    percentSerminar: classInfo.percentSerminar || 0,
+    percentExam: classInfo.percentExam || 0,
   };
 }
 

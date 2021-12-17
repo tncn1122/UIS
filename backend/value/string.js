@@ -36,6 +36,10 @@ module.exports = {
   major_not_found: "Không tìm thấy chuyên ngành",
   major_exist: "Mã chuyên ngành đã tồn tại",
 
+
+  room_not_found: "Không tìm thấy phòng",
+  room_exist: "Phòng đã tồn tại",
+
   ontime: "Có mặt",
   late: "Trễ",
   absent: "Vắng",

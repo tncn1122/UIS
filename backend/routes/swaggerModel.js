@@ -62,3 +62,23 @@
  * @property {integer} slots.required
  */
 
+
+/**
+ * @typedef Subject
+ * @property {string} subjectId.required
+ * @property {string} semester.required
+ * @property {Room.model} roomId.required 
+ * @property {string} name.required
+ * @property {integer} credits.required
+ * @property {integer} shift.required
+ * @property {date} startDate.required
+ * @property {integer} days.required
+ * @property {Array.<string>} schedule.required
+ * @property {string} dayOfWeek.required
+ * @property {enum} role.required  - Một trong các role sau đây: - eg: '2', '3', '4', '5', '6', '7'
+ * @property {integer} percentDiligence.required
+ * @property {integer} percentTest.required
+ * @property {integer} percentPractice.required
+ * @property {integer} percentSerminar.required
+ * @property {integer} percentExam.required
+ */

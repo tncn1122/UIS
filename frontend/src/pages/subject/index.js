@@ -14,16 +14,18 @@ import {
   Modal,
   notification,
   Spin,
+  Dropdown,
+  Menu,
 } from "antd";
 
-import { ExclamationCircleOutlined, ToTopOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, SettingOutlined, ToTopOutlined, UserOutlined } from "@ant-design/icons";
+import { Link, useHistory } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { HttpUtils, URLUtils } from "../../utils";
 import ErrorHandler from "../../utils/Error";
 import UI from "../../utils/UI";
 import { STATUS } from "../../value/model";
-import DepartmentModal from "./SubjectModal";
+import SubjectModal from "./SubjectModal";
 import CustomTable from "../../components/table/CustomTable";
 
 
@@ -54,30 +56,56 @@ const formProps = {
 
 function SubjectPage() {
   const [dataTable, setDataTable] = useState([])
-  const [departmentModalVisible, setDepartmentModalVisible] = useState(false)
-  const [departmentModalType, setDepartmentModalVisibleType] = useState(false)
+  const [subjectModalVisible, setSubjectModalVisible] = useState(false)
+  const [subjectModalType, setSubjectModalVisibleType] = useState(false)
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
+  const [listRooms, setListRooms] = useState([])
+  let history = useHistory()
 
 
   const tableColume = [
     {
-      title: "MÃ KHOA",
-      dataIndex: "departmentId",
-      key: "departmentId",
-      width: "32%",
+      title: "MÃ MÔN HỌC",
+      dataIndex: "subjectId",
+      key: "subjectId",
+      width: "12%",
       hasSearch: true
     },
     {
-      title: "TÊN",
+      title: "TÊN MÔN",
       dataIndex: "name",
-      key: "name",
+      key: "lastName",
       hasSearch: true
     },
     {
-      title: "SỐ LƯỢNG CHUYÊN NGÀNH",
-      dataIndex: "majorsCount",
-      key: "majorsCount",
+      title: "SỐ TÍN CHỈ",
+      dataIndex: "credits",
+      key: "credits",
+      hasSearch: true
+    },
+    {
+      title: "PHÒNG",
+      dataIndex: "roomId",
+      key: "roomId",
+    },
+    {
+      title: "SỐ LƯỢNG SINH VIÊN",
+      dataIndex: "studentCount",
+      key: "studentCount",
+    },
+    {
+      title: "NGÀY TẠO",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (value => (
+        UI.formatDate(value)
+      ))
+    },
+    {
+      title: "LỊCH HỌC",
+      key: "schedule",
+      dataIndex: "schedule",
     },
     {
       title: "TRẠNG THÁI",
@@ -100,17 +128,42 @@ function SubjectPage() {
     {
       title: 'HIỆU CHỈNH',
       key: 'action',
-      width: "10%",
+      width: "5%",
       render: (value, record) => (
         <>
-          <Space>
-            <Button disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }}>Sửa</Button>
-            <Button disabled={record.status === STATUS.DELETED || record.majorsCount > 0} onClick={(e) => { showConfirm(record) }}>Xóa</Button>
-          </Space>
+          {
+            <Dropdown overlay={() => (dropdownOptions(record))} placement="bottomRight" arrow>
+              <Button icon={<SettingOutlined />}
+                style={{
+                  padding: '0px 0px',
+                  fontSize: '20px',
+                  boxShadow: 'none',
+                  borderRadius: '6px',
+                  width: '50px',
+                  height: '42px'
+                }}
+              />
+            </Dropdown>
+          }
         </>
       )
     }
   ];
+
+  const dropdownOptions = (record) => (
+    <Menu disabled={record.status === STATUS.DELETED}>
+      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => { history.push(`/user/${record.userId}`) }}>
+        Trang Cá Nhân
+      </Menu.Item>
+      <Menu.Item key="1" icon={<EditOutlined />} onClick={(e) => { onClickEditButton(record) }}>
+        {/* <Button type="text" disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }} style={{boxShadow: 'none'}}>Sửa</Button> */}
+        Sửa
+      </Menu.Item>
+      <Menu.Item key="2" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
+        Xóa
+      </Menu.Item>
+    </Menu>
+  );
 
   useEffect(() => {
     fetchData()
@@ -118,11 +171,11 @@ function SubjectPage() {
 
   const showConfirm = (value) => {
     confirm({
-      title: 'Xác nhận xóa khoa này?',
+      title: 'Xác nhận xóa môn họcnày?',
       icon: <ExclamationCircleOutlined />,
-      content: `${value.name}`,
+      content: `${value.lastName} ${value.firstName}`,
       onOk() {
-        HttpUtils.delete(URLUtils.buildBeURL(`/departments/${value.departmentId}`))
+        HttpUtils.delete(URLUtils.buildBeURL(`/subjects/${value.userId}`))
           .then(resp => {
             notification.success({
               message: 'Xóa thành công',
@@ -139,11 +192,11 @@ function SubjectPage() {
 
   const fetchData = () => {
     setIsFetchingData(true)
-    HttpUtils.get(URLUtils.buildBeURL('/departments'))
+    HttpUtils.get(URLUtils.buildBeURL('/subjects'))
       .then(resp => {
         const { data } = resp
         if (data && data.length > 0) {
-          setDataTable(data)
+          setDataTable(preProcessingData(data))
         }
         setIsFetchingData(false)
       })
@@ -151,23 +204,62 @@ function SubjectPage() {
         ErrorHandler.handle(err)
         setIsFetchingData(false)
       })
+      fetchRooms()
   }
 
-  const onCancelDepartmentModal = () => {
-    setDepartmentModalVisibleType(null)
-    setDepartmentModalVisible(false)
+  const fetchRooms = () => {
+    HttpUtils.get(URLUtils.buildBeURL('/rooms'))
+      .then(resp => {
+        const { data } = resp
+        if (data && data.length > 0) {
+          setListRooms(data.filter(item => (item.status !== STATUS.DELETED)))
+        }
+      })
+      .catch(err => {
+        ErrorHandler.handle(err)
+      })
+  }
+
+  // const fetchMajors = () => {
+  //   HttpUtils.get(URLUtils.buildBeURL('/majors'))
+  //     .then(resp => {
+  //       const { data } = resp
+  //       if (data && data.length > 0) {
+  //         setListMajors(data.filter(item => (item.status !== STATUS.DELETED)))
+  //       }
+  //     })
+  //     .catch(err => {
+  //       ErrorHandler.handle(err)
+  //     })
+  // }
+
+  const preProcessingData = (data) => {
+    return data.map(item => {
+      const { roomId } = item
+      console.log(roomId);
+      return ({
+        ...item,
+        studentCount: roomId.slots || '-',
+        roomId: roomId.roomId || '-',
+      })
+    })
+  }
+
+  const onCancelSubjectModal = () => {
+    setSubjectModalVisibleType(null)
+    setSubjectModalVisible(false)
   }
 
   const onClickCreateButton = () => {
-    setDepartmentModalVisibleType('create')
-    setDepartmentModalVisible(true)
+    setSubjectModalVisibleType('create')
+    setSubjectModalVisible(true)
   }
 
   const onClickEditButton = (data) => {
     console.log(data);
-    setDepartmentModalVisibleType('edit')
+    setSubjectModalVisibleType('edit')
     setCurrentData(data)
-    setDepartmentModalVisible(true)
+    setSubjectModalVisible(true)
   }
 
 
@@ -179,14 +271,14 @@ function SubjectPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Khoa"
+              title="Danh Sách Môn Học"
               extra={
                 <Space>
                   <Button onClick={fetchData}>
                     Làm Mới
                   </Button>
                   <Button onClick={onClickCreateButton}>
-                    Tạo Khoa Mới
+                    Tạo Môn Học Mới
                   </Button>
                 </Space>
               }
@@ -215,13 +307,14 @@ function SubjectPage() {
           </Col>
         </Row>
       </div>
-      <DepartmentModal
-        visible={departmentModalVisible}
-        onCancel={onCancelDepartmentModal}
-        modalType={departmentModalType}
-        departmentId={currentData.departmentId}
+      <SubjectModal
+        visible={subjectModalVisible}
+        onCancel={onCancelSubjectModal}
+        modalType={subjectModalType}
+        subjectId={currentData.subjectId}
         name={currentData.name}
         fetchData={fetchData}
+        listRooms={listRooms}
       />
       <Modal
 

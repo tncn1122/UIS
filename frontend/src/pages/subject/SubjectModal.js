@@ -1,38 +1,53 @@
 import React, { useEffect, useState } from 'react'
-import { Form, Input, Modal, notification } from 'antd'
-import { ALPHANUMBERIC_VALIDATE, ID_VALIDATE } from '../../value/validate'
+import { Button, Col, DatePicker, Divider, Form, Input, Modal, notification, Row, Select, Space, Tooltip } from 'antd'
+import { ALPHANUMBERIC_VALIDATE, ID_VALIDATE, MAIL_VALIDATE, NUMBER_VALIDATE } from '../../value/validate'
 import { HttpUtils, URLUtils } from '../../utils'
 import ErrorHandler from '../../utils/Error'
+import { SafetyOutlined } from '@ant-design/icons'
+import { ENUM_ROLE } from '../../value/model'
+import moment from 'moment'
 
+const { Option } = Select
 
-
-const DepartmentModal = (props) => {
-  const { departmentId, name, modalType, fetchData } = props
+const SubjectModal = (props) => {
+  const { subjectInfo, modalType, fetchData, listRooms } = props
   const { visible, onCancel } = props
   const [form] = Form.useForm()
+  const [formValues, setFormValues] = useState({});
 
   useEffect(() => {
     if (modalType === 'edit') {
-      console.log(departmentId, name);
       form.setFieldsValue({
-        departmentId,
-        name
+        subjectId: subjectInfo.subjectId,
+        firstName: subjectInfo.firstName,
+        lastName: subjectInfo.lastName,
+        email: subjectInfo.email,
+        password: 'disabled',
+        role: subjectInfo.role,
+        majorId: subjectInfo.majorId.majorId,
+        birthDate: moment(subjectInfo.birthDate),
+        birthplace: subjectInfo.birthplace,
+        phone: subjectInfo.phone,
+        sex: subjectInfo.sex,
+        idNo: subjectInfo.idNo,
+        address: subjectInfo.address,
       })
     }
   }, [visible])
 
   const onSubmit = value => {
+    value.startDate = value.startDate.format()
     if (modalType === 'edit') {
-      editDepartment(value)
+      editSubject(value)
     }
     else {
-      createNewDepartment(value)
+      createNewSubject(value)
     }
     onCancel()
   }
 
-  const createNewDepartment = (value) => {
-    HttpUtils.post(URLUtils.buildBeURL('/departments'), value)
+  const createNewSubject = (value) => {
+    HttpUtils.post(URLUtils.buildBeURL('/subjects'), value)
       .then(resp => {
         notification.success({
           message: 'Tạo mới thành công',
@@ -45,9 +60,10 @@ const DepartmentModal = (props) => {
       })
   }
 
-  const editDepartment = (value) => {
-    HttpUtils.put(URLUtils.buildBeURL(`/departments/${departmentId}`), value)
+  const editSubject = (value) => {
+    HttpUtils.put(URLUtils.buildBeURL(`/subjects/${subjectInfo.subjectId}`), value)
       .then(resp => {
+        console.log(resp);
         notification.success({
           message: 'Chỉnh sửa thành công',
           placement: 'bottomRight'
@@ -64,8 +80,9 @@ const DepartmentModal = (props) => {
     <>
       <Modal
         visible={visible}
-        title={modalType === 'edit' ? "Chỉnh sửa Khoa" : "Tạo Khoa mới"}
+        title={modalType === 'edit' ? "Chỉnh sửa Môn Học" : "Tạo Môn Học mới"}
         okText="OK"
+        width={1000}
         cancelText="Hủy"
         onCancel={() => {
           form.resetFields()
@@ -76,7 +93,7 @@ const DepartmentModal = (props) => {
             .validateFields()
             .then(value => {
               onSubmit(value)
-              form.resetFields()
+              // form.resetFields()
             })
             .catch(info => {
               console.log('Validate Failed:', info)
@@ -84,21 +101,199 @@ const DepartmentModal = (props) => {
         }}
         forceRender
       >
-        <Form form={form} layout="vertical" name="department-form">
-          <Form.Item
-            label="Mã Khoa"
-            name="departmentId"
-            rules={ID_VALIDATE}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Tên Khoa"
-            name="name"
-            rules={ALPHANUMBERIC_VALIDATE}
-          >
-            <Input />
-          </Form.Item>
+        <Form form={form} layout="vertical" name="subject-form" onValuesChange={(_, values) => setFormValues(values)}>
+          <Row gutter={[40, 10]}>
+            <Col span={12}>
+              <Form.Item
+                label="Mã Môn Học"
+                name="subjectId"
+                rules={ID_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Phòng"
+                name="roomId"
+                rules={[{
+                  required: true,
+                  message: 'Vui lòng chọn phòng.',
+                }]}
+              >
+                <Select
+                  placeholder="Chọn phòng học"
+                  size='large'
+                  style={{
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                >
+                  {listRooms.map(item => (
+                    <Option value={item.roomId}>{`${item.roomId} - ${item.slots} chỗ`}</Option>
+                  ))}
+
+                </Select>
+              </Form.Item>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                label="Tên Môn Học"
+                name="name"
+                rules={ALPHANUMBERIC_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Học Kì"
+                name="semester"
+                rules={ALPHANUMBERIC_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Số Tín Chỉ"
+                name="credits"
+                rules={NUMBER_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Số Ngày Học"
+                name="days"
+                rules={MAIL_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Buổi Học"
+                name="shift"
+                rules={[{
+                  required: true,
+                  message: 'Vui lòng chọn buổi học.',
+                }]}
+                style={{
+                  borderRadius: '6px',
+                }}
+              >
+                <Select
+                  size='large'
+                  placeholder="Chọn buổi học"
+                  style={{
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                >
+                  <Option value={0}>Sáng</Option>
+                  <Option value={1}>Chiều</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Ngày Học Trong Tuần"
+                name="dayOfWeek"
+                rules={[{
+                  required: true,
+                  message: 'Vui lòng chọn ngày học.',
+                }]}
+                style={{
+                  borderRadius: '6px',
+                }}
+              >
+                <Select
+                  size='large'
+                  placeholder="Chọn ngày học"
+                  style={{
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                >
+                  <Option value={'2'}>Thứ hai</Option>
+                  <Option value={'3'}>Thứ ba</Option>
+                  <Option value={'4'}>Thứ tư</Option>
+                  <Option value={'5'}>Thứ năm</Option>
+                  <Option value={'6'}>Thứ sáu</Option>
+                  <Option value={'7'}>Thứ bảy</Option>
+
+                </Select>
+              </Form.Item>
+            </Col>
+
+
+            <Col span={12}>
+              <Form.Item
+                label="Ngày Bắt Đầu"
+                name="startDate"
+                rules={[{
+                  required: true,
+                  message: 'Vui lòng chọn ngày bắt đầu môn học.',
+                }]}
+              >
+                <DatePicker size='large' placeholder={'Chọn ngày bắt đầu'} style={{ width: '100%', borderRadius: '6px' }} />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Divider>
+                Tỉ Lệ Điểm Thành Phần
+              </Divider>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                label="Điểm Chuyên Cần"
+                name="percentDiligence"
+                rules={NUMBER_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Điểm Kiểm Tra"
+                name="percentTest"
+                rules={NUMBER_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Điểm Thực Hành"
+                name="percentPractice"
+                rules={NUMBER_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Điểm Tiểu Luận"
+                name="percentSerminar"
+                rules={NUMBER_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Điểm Thi"
+                name="percentExam"
+                rules={NUMBER_VALIDATE}
+              >
+                <Input />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </>
@@ -106,4 +301,4 @@ const DepartmentModal = (props) => {
   )
 }
 
-export default DepartmentModal
+export default SubjectModal
