@@ -29,7 +29,7 @@ const userSchema = CreateSchema({
     type: String,
     require: [true, stringMessage.id_required],
     minLength: 3,
-    trim: true
+    trim: true,
   },
   firstName: {
     type: String,
@@ -159,7 +159,14 @@ userSchema.methods.isUnique = async (id, email) => {
     return false;
   }
   return true;
+}
 
+ const isUniqueId = async (id) => {
+  const userId = await User.findOne({ userId: id })
+  if (userId) {
+    return false;
+  }
+  return true;
 }
 //===
 const User = mongoose.model(modelName, userSchema)

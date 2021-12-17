@@ -1,19 +1,21 @@
 const stringMessage = require('../value/string')
 const ClassInfo = require('../models/ClassInfo');
-const moment = require('moment-timezone')
+const moment = require('moment-timezone');
+const Subject = require('../models/Subject');
+const { STATUS } = require('../value/model');
 
 
 const week = {
-  2: 'Monday',
-  3: 'Tuesday',
-  4: 'Wednesday',
-  5: 'thursday',
-  6: 'Friday',
-  7: 'Saturday',
+  '2': 'Monday',
+  '3': 'Tuesday',
+  '4': 'Wednesday',
+  '5': 'thursday',
+  '6': 'Friday',
+  '7': 'Saturday',
 }
 
 async function findClass(classId) {
-  const classInfo = await ClassInfo.findOne({ id: classId }).populate('students').populate('monitors');
+  const classInfo = await Subject.findOne({ subjectId: classId, status: { $ne: STATUS.DELETED } }).populate('roomId');
   return classInfo;
 }
 
@@ -54,8 +56,12 @@ function isChangeExpired(startDate) {
 function genSchedule(startDate, shift, days, dayOfWeek) {
   let schedule = [];
   //console.log(startDate);
+  if(!startDate || !shift || !days || !dayOfWeek){
+    return []
+  }
   let day = moment(startDate, 'DD-MM-YYYY');
   while (day.format('dddd') !== week[dayOfWeek]) {
+    console.log(startDate, day);
     day.add(1, 'days');
   }
   for (let times = 0; times < days; times++) {

@@ -11,10 +11,9 @@ const router = express.Router()
 const classUtil = require('../util/ClassUtils')
 const userUtil = require('../util/UserUtils')
 const moment = require('moment-timezone');
-const subject = require('../models/Subject');
 const Subject = require('../models/Subject');
 const Room = require('../models/Room');
-const { room_not_found } = require('../value/string');
+const { room_not_found, subject_not_found } = require('../value/string');
 const { STATUS } = require('../value/model');
 const subjectStudent = require('../models/SubjectStudent');
 const SubjectStudent = require('../models/SubjectStudent');
@@ -161,46 +160,76 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
 
 /**
  * Sửa một lớp dựa vào ID, chỉ có Admin mới thực hiện được chức năng này.
- * @route PUT /subjects/
+ * @route PUT /subjects/{id}
  * @group Class
- * @param {Class.model} class.body.required Body của lớp cần sửa.
- * @returns {Class.model} 200 - Thông tin lớp nếu thao tác thành công.
+ * @param {string} id.path.required Body của lớp cần sửa.
+ * @param {Subject.model} class.body.required Body của lớp cần sửa.
+ * @returns {Subject.model} 200 - Thông tin lớp nếu thao tác thành công.
  * @returns {Error.model} 500 - Lỗi.
  * @security Bearer
  */
-router.put('/', auth.isAdmin, async (req, res) => {
+router.put('/:id', auth.isAdmin, async (req, res) => {
   try {
-    let classUpdate = req.body;
-    const classInfo = await findClass(classUpdate.subjectId);
+    let subjectId = req.params.id; //old
+    let classUpdate = req.body;  //new
+
+
+    const classInfo = await classUtil.findClass(subjectId);
+    if(!classInfo){
+      throw new Error(subject_not_found)
+    }
+
     if (classUtil.isChangeExpired(classInfo.startDate)) {
       return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.class_change_timeup));
     }
-    let class_id = classInfo.subjectId;
-    delete classUpdate['subjectId'];
-    if (classInfo.teacher.id !== classUpdate.teacher.id) {
-      // remove class from old teacher
-      await updateTeacherClass(classInfo.teacher.id, 0, classInfo.id);
-      // add class to new teacher
-      await updateTeacherClass(classUpdate.teacher.id, 1, classInfo.id);
-    }
 
-    classUpdate.teacher = await findUser(classUpdate.teacher.id);
-    classUpdate.students = await createStudentList(classUpdate.students);
-    await ClassInfo.findOneAndUpdate({ id: class_id }, classUpdate, { runValidators: true }, async function (error, raw) {
+    const roomInfo = await Room.findOne({roomId: classUpdate.roomId, status: { $ne: STATUS.DELETED } })
+    if(!roomInfo){
+      throw new Error(room_not_found)
+    }
+    const schedule = classUtil.genSchedule(classUpdate.startDate, +
+      classUpdate.shift, classUpdate.days, classUpdate.dayOfWeek);
+    const bodyUpdate = {
+      ...classUpdate,
+      roomId: roomInfo,
+      schedule
+    }
+    await Subject.findOneAndUpdate({subjectId}, bodyUpdate, async function (error, raw) {
       if (!error) {
         if (raw) {
-          raw.save();
-          await updateStudentAfterChange(classInfo.students, classUpdate.students, class_id);
-          return res.status(201).send(ResponseUtil.makeResponse(raw));
+          await raw.save();
         }
         else {
-          return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.class_not_found));
+          throw new Error(stringMessage.subject_not_found);
         }
       }
       else {
-        return res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
+        throw new Error(error.message)
       }
-    }).populate('students').populate('monitors').populate('teacher');;
+    })
+    
+    const savedSubject = {...classInfo.toObject(), ...bodyUpdate}
+
+    // update teacher
+    const teacher = await findUser(classUpdate.teacherId);
+    await updateTeacherClass(teacher, classInfo);
+
+    // update student
+    const students = await createStudentList(classUpdate.students || []);
+    await Promise.all(students.map(async (item) => {
+      const subTeacher = new SubjectStudent({
+        studentId: item,
+        subjectId: savedSubject
+      })
+      await subTeacher.save()
+    }))
+
+    console.log(savedSubject);
+    res.status(201).send(ResponseUtil.makeResponse({
+      ...savedSubject,
+      teacher,
+      students
+    }));
   }
   catch (err) {
     console.log(err);
@@ -290,12 +319,12 @@ async function createStudentList(student_id_list) {
 
   if (student_id_list && student_id_list.length > 0) {
     for (const student_id of student_id_list) {
-      let student = await findStudent(student_id.id);
+      let student = await findStudent(student_id);
       if (student) {
         student_list.push(student);
       }
       else {
-        throw new Error(stringMessage.user_not_found + " Sinh viên: " + student_id.id);
+        throw new Error(stringMessage.user_not_found + " Sinh viên: " + student_id.userId);
       }
     }
   }
@@ -341,10 +370,10 @@ async function updateStudentClass(student_state_list, class_id) {
         // remove class
         current_user.subjects = current_user.subjects.filter(item => item !== class_id);
       }
-      await User.findOneAndUpdate({ id: key }, current_user, function (error, raw) {
+      await User.findOneAndUpdate({ id: key }, current_user, async function (error, raw) {
         if (!error) {
           if (raw) {
-            raw.save();
+            await raw.save();
           }
           else {
             throw new Error(stringMessage.user_not_found);
@@ -359,24 +388,18 @@ async function updateStudentClass(student_state_list, class_id) {
   return Promise.all(student_list);
 }
 
-async function updateTeacherClass(teacher_id, state, class_id) {
-  console.log(teacher_id);
-  let current_user = await findUser(teacher_id);
-  if (state == 1) {
-    // add class
-    current_user.subjects.push(class_id);
-  }
-  else {
-    // remove class
-    current_user.subjects = current_user.subjects.filter(item => item !== class_id);
-  }
-  await User.findOneAndUpdate({ id: teacher_id }, current_user, function (error, raw) {
+async function updateTeacherClass(teacherObj, classObj) {
+  await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, {teacherId: teacherObj}, async function (error, raw) {
     if (!error) {
       if (raw) {
-        raw.save();
+        await raw.save();
       }
       else {
-        throw new Error(stringMessage.user_not_found);
+        const subTeacher = new SubjectTeacher({
+          subjectId: classObj,
+          teacherId: teacherObj
+        })
+        await subTeacher.save()
       }
     }
     else {

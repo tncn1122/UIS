@@ -88,9 +88,11 @@ subjectSchema.pre('save', function (next) {
   classUtil.validateDate(classInfo.dateStart);
   classInfo.schedule = classUtil.genSchedule(classInfo.dateStart, +
     classInfo.shift, classInfo.days, classInfo.dayOfWeek);
-
+  
+  console.log('here');
   next()
 })
+
 
 
 module.exports = Subject;

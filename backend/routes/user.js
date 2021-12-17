@@ -9,7 +9,7 @@ const QR = require('../util/QR')
 const router = express.Router()
 const userUtil = require('../util/UserUtils');
 const Major = require('../models/Major');
-const { major_not_found } = require('../value/string');
+const { major_not_found, user_exist } = require('../value/string');
 const { STATUS } = require('../value/model');
 
 /**
@@ -63,13 +63,20 @@ router.post('/', auth.isAdmin, async (req, res) => {
   // Create a new user
   try {
     let userInfo = req.body;
-    const userMajor = await Major.findOne({majorId: userInfo.majorId, status: {$ne: STATUS.DELETED}}).populate('departmentId')
-    if(!userMajor){
+    const userMajor = await Major.findOne({ majorId: userInfo.majorId, status: { $ne: STATUS.DELETED } }).populate('departmentId')
+    if (!userMajor) {
       throw new Error(major_not_found)
     }
     userInfo.majorId = userMajor
     userInfo.avtUrl = "";
+
     const user = new User(userInfo);
+    const uniqueId = await user.isUnique(userInfo.userId)
+
+    if (uniqueId) {
+      throw new Error(user_exist)
+    }
+
     user.qrUrl = QR.createQR(user.userId)
     await user.generateAuthToken();
     await user.save();
@@ -101,7 +108,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
     }
     else {
       userResponse = userResponse.toObject()
-      const {majorId} = userResponse
+      const { majorId } = userResponse
       const departmentId = majorId?.departmentId || {}
       userResponse.departmentName = departmentId?.name || '-'
       userResponse.majorName = majorId?.name || '-'
@@ -135,22 +142,27 @@ router.put('/:id', auth.isUser, async (req, res) => {
     let user = req.user;
     let user_id = req.params.id;
     userUtil.onlyAdminAndOwner(user, user_id);
-    delete userUpdate['id'];
     delete userUpdate['password'];
     delete userUpdate['role'];
     delete userUpdate['token'];
     delete userUpdate['classes'];
     delete userUpdate['_id'];
     delete userUpdate['__v'];
-    const userMajor = await Major.findOne({majorId: userUpdate.majorId, status: {$ne: STATUS.DELETED}}).populate('departmentId')
-    if(!userMajor){
+    const userMajor = await Major.findOne({ majorId: userUpdate.majorId, status: { $ne: STATUS.DELETED } }).populate('departmentId')
+    if (!userMajor) {
       throw new Error(major_not_found)
     }
     userUpdate.majorId = userMajor
-    await User.findOneAndUpdate({ userId: user_id, status: {$ne: STATUS.DELETED}}, userUpdate, { runValidators: true }, function (error, raw) {
+
+    const uniqueId = await findUser(userUpdate.userId)
+    if(uniqueId){
+      throw new Error(user_exist)
+    }
+
+    await User.findOneAndUpdate({ userId: user_id, status: { $ne: STATUS.DELETED } }, userUpdate, { runValidators: true }, async function (error, raw) {
       if (!error) {
         if (raw) {
-          raw.save();
+          await raw.save();
           res.status(201).send(ResponseUtil.makeResponse(raw));
         }
         else {

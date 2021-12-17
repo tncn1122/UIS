@@ -4,7 +4,10 @@ module.exports = {
   invalid_credentials: "Sai tên đăng nhập hoặc mật khẩu!",
   invalid_password_format: "Mật khẩu phải ít nhất 5 kí tự!",
   duplicate_credentials: "đã tồn tại!",
+
   user_not_found: "Không tìm thấy người dùng!",
+  user_exist: "Id đã tồn tại!",
+
   class_not_found: "Không tìm thấy lớp!",
   wrong_password: "Mật khẩu đã nhập không đúng!",
   deleted_successfully: "Xóa thành công!",
@@ -39,6 +42,9 @@ module.exports = {
 
   room_not_found: "Không tìm thấy phòng",
   room_exist: "Phòng đã tồn tại",
+
+  subject_not_found: "Không tìm thấy môn học",
+  subject_exist: "Môn học đã tồn tại",
 
   ontime: "Có mặt",
   late: "Trễ",
