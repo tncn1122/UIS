@@ -17,7 +17,7 @@ var usersRouter = require('./routes/user');
 var studentsRouter = require('./routes/student');
 var teachersRouter = require('./routes/teacher');
 var dashboardRouter = require('./routes/dashboard');
-var classesRouter = require('./routes/class');
+var subjectRouter = require('./routes/subject');
 var reportRouter = require('./routes/rollcallreport');
 var majorRouter = require('./routes/major')
 var departmentRouter = require('./routes/department')
@@ -64,7 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/students', studentsRouter);
-app.use('/api/subjects', classesRouter);
+app.use('/api/subjects', subjectRouter);
 app.use('/api/teachers', teachersRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/reports', reportRouter);

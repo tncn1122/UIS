@@ -73,6 +73,11 @@ const subjectSchema = baseSchema.CreateSchema({
     type: Number,
     require: true,
   },
+  isFinished: {
+    type: Boolean,
+    require: true,
+    default: false
+  }
 }, modelName)
 
 const Subject = mongoose.model(modelName, subjectSchema);

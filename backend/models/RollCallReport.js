@@ -90,8 +90,8 @@ const reportschema = baseSchema.CreateSchema({
     require: true,
     trim: true
   },
-  subjectId: {
-    type: String,
+  subjectObj: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'Subject',
     require: true,
   }
 }, modelName)

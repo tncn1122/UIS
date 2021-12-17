@@ -10,11 +10,15 @@ const rollcallSchema = baseSchema.CreateSchema({
     trim: true
   },
   userId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, ref: 'User',
     require: true
   },
   rollcallStatus: {
     type: String,
+    enum: {
+      values: ['late', 'ontime', 'absent'],
+      message: "Trạng thái không đúng!"
+    },
     require: true
   }
 }, modelName)

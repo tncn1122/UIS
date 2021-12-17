@@ -16,6 +16,10 @@ const Subject = require('../models/Subject');
 const Room = require('../models/Room');
 const { room_not_found } = require('../value/string');
 const { STATUS } = require('../value/model');
+const subjectStudent = require('../models/SubjectStudent');
+const SubjectStudent = require('../models/SubjectStudent');
+const { populate } = require('../models/User');
+const SubjectTeacher = require('../models/SubjectTeacher');
 
 /**
  * @typedef ListClasses
@@ -82,29 +86,29 @@ router.post('/', auth.isAdmin, async (req, res) => {
 
 /**
  * Get tất cả lớp hiện có. Chỉ có tài khoản quyền Admin mới thực hiện được chức năng này.
- * @route GET /classes/
+ * @route GET /subjects/
  * @group Class
  * @returns {ListClasses.model} 200 - Thông tin tài khoản và token ứng với tài khoản đó.
  * @returns {Error.model} 500 - Lỗi.
  * @security Bearer
  */
 router.get('/', auth.isAdmin, async (req, res) => {
-  Subject.find({}, function (err, classes) {
+  Subject.find({}, function (err, subjects) {
     //console.log(users);
     if (err) {
       console.log(err);
       res.status(500).send(ResponseUtil.makeMessageResponse(err.message))
     }
     else {
-      console.log((classes));
-      res.status(200).send(ResponseUtil.makeResponse(classes))
+      console.log((subjects));
+      res.status(200).send(ResponseUtil.makeResponse(subjects))
     }
   }).populate('roomId');
 })
 
 /**
  * Xóa một lớp khỏi hệ thống dựa vào ID, chỉ có Admin mới thực hiện được chức năng này.
- * @route DELETE /classes/{id}
+ * @route DELETE /subjects/{id}
  * @group Class
  * @param {string} id.path.required ID của lớp cần xóa.
  * @returns {Error.model} 200 - "Xóa thành công!" nếu thao tác thành công.
@@ -113,11 +117,11 @@ router.get('/', auth.isAdmin, async (req, res) => {
  */
 router.delete('/:id', auth.isAdmin, async (req, res) => {
   try {
-    let classId = req.params.id;
-    const classInfo = await ClassInfo.findOne({ id: classId });
+    let subjectId = req.params.id;
+    const classInfo = await ClassInfo.findOne({ id: subjectId });
     if (classInfo) {
       await classInfo.remove();
-      // await ClassInfo.remove({id: classId})
+      // await ClassInfo.remove({id: subjectId})
       res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.deleted_successfully));
     }
     else {
@@ -132,7 +136,7 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
 
 /**
  * Sửa một lớp dựa vào ID, chỉ có Admin mới thực hiện được chức năng này.
- * @route PUT /classes/
+ * @route PUT /subjects/
  * @group Class
  * @param {Class.model} class.body.required Body của lớp cần sửa.
  * @returns {Class.model} 200 - Thông tin lớp nếu thao tác thành công.
@@ -181,7 +185,7 @@ router.put('/', auth.isAdmin, async (req, res) => {
 
 /**
  * Lấy thông tin của một lớp, user đã đăng nhập mới thực hiện được chức năng này.
- * @route GET /classes/{id}
+ * @route GET /subjects/{id}
  * @group Class
  * @param {string} id.path.required ID của lớp cần lấy thông tin.
  * @returns {Class.model} 200 - Thông tin lớp nếu thao tác thành công.
@@ -190,10 +194,17 @@ router.put('/', auth.isAdmin, async (req, res) => {
  */
 router.get('/:id', auth.isUser, async (req, res) => {
   try {
-    let classId = req.params.id;
-    const classInfo = await findClass(classId);
+    let subjectId = req.params.id;
+    let classInfo = await findSubject(subjectId);
     if (classInfo) {
-      res.status(200).send(ResponseUtil.makeResponse(classInfo));
+      classInfo = classInfo.toObject()
+      const students = await getStudentInSubject(classInfo)
+      const teacher = await getTeacherInSubject(classInfo)
+      res.status(200).send(ResponseUtil.makeResponse({
+        ...classInfo,
+        students,
+        teacher
+      }));
     }
     else {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.class_not_found));
@@ -206,8 +217,18 @@ router.get('/:id', auth.isUser, async (req, res) => {
   }
 })
 
+async function getStudentInSubject(subjectObj){
+  const listStudents = await SubjectStudent.find({subjectId: subjectObj, status: { $ne: STATUS.DELETED }}).populate('studentId')
+  return listStudents
+}
+
+async function getTeacherInSubject(subjectObj){
+  const teacher = await SubjectTeacher.findOne({subjectId: subjectObj, status: { $ne: STATUS.DELETED }}).populate('teacherId')
+  return teacher
+}
+
 async function findStudent(userId) {
-  return await User.findOne({ id: userId });
+  return await User.findOne({ userId });
 }
 
 async function createStudentList(student_id_list) {
@@ -227,8 +248,8 @@ async function createStudentList(student_id_list) {
   return Promise.all(student_list);
 }
 
-async function findClass(classId) {
-  const classInfo = await ClassInfo.findOne({ id: classId }).populate('students').populate('monitors').populate('teacher');
+async function findSubject(subjectId) {
+  const classInfo = await Subject.findOne({ subjectId: subjectId }).populate('roomId');
   return classInfo;
 }
 
@@ -260,11 +281,11 @@ async function updateStudentClass(student_state_list, class_id) {
       let current_user = await findUser(key);
       if (value == 1) {
         // add class
-        current_user.classes.push(class_id);
+        current_user.subjects.push(class_id);
       }
       else {
         // remove class
-        current_user.classes = current_user.classes.filter(item => item !== class_id);
+        current_user.subjects = current_user.subjects.filter(item => item !== class_id);
       }
       await User.findOneAndUpdate({ id: key }, current_user, function (error, raw) {
         if (!error) {
@@ -289,11 +310,11 @@ async function updateTeacherClass(teacher_id, state, class_id) {
   let current_user = await findUser(teacher_id);
   if (state == 1) {
     // add class
-    current_user.classes.push(class_id);
+    current_user.subjects.push(class_id);
   }
   else {
     // remove class
-    current_user.classes = current_user.classes.filter(item => item !== class_id);
+    current_user.subjects = current_user.subjects.filter(item => item !== class_id);
   }
   await User.findOneAndUpdate({ id: teacher_id }, current_user, function (error, raw) {
     if (!error) {

@@ -5,19 +5,15 @@ const modelName = 'SubjectTeacher'
 
 const subjectTeacherSchema = baseSchema.CreateSchema({
   teacherId: {
-    type: String,
-    require: true,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId, ref: 'User',
+    require: true
   },
-  subjectId: [
-    {
-      type: String,
-      require: true,
-      trim: true
-    }
-  ]
+  subjectId: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'Subject',
+    require: true
+  }
 }, modelName)
 
-const subjectTeacher = mongoose.model(modelName, subjectTeacherSchema);
+const SubjectTeacher = mongoose.model(modelName, subjectTeacherSchema);
 
-module.exports = subjectTeacher;
+module.exports = SubjectTeacher;

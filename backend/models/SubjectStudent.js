@@ -5,24 +5,42 @@ const modelName = 'subjectStudent'
 
 
 const subjectStudentSchema = baseSchema.CreateSchema({
-  userId: {
-    type: String,
-    require: true,
-    trim: true
-  },
   subjectId:
   {
-    type: String,
-    require: true,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId, ref: 'Subject',
+    require: true
   },
-  diligenceMark: Number,
-  serminarMark: Number,
-  examMark1: Number,
-  examMark2: Number,
-  examMark3: Number,
+  studentId: {
+    type: mongoose.Schema.Types.ObjectId, ref: 'User',
+    require: true
+  },
+  diligenceMark: {
+    type: Number,
+    require: true,
+    default: 0
+  },
+  serminarMark: {
+    type: Number,
+    require: true,
+    default: 0
+  },
+  examMark1: {
+    type: Number,
+    require: true,
+    default: 0
+  },
+  examMark2: {
+    type: Number,
+    require: true,
+    default: 0
+  },
+  examMark3: {
+    type: Number,
+    require: true,
+    default: 0
+  },
 }, modelName)
 
-const subjectStudent = mongoose.model(modelName, subjectStudentSchema);
+const SubjectStudent = mongoose.model(modelName, subjectStudentSchema);
 
-module.exports = subjectStudent; 
+module.exports = SubjectStudent; 
