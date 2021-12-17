@@ -257,13 +257,7 @@ router.post('/login', async (req, res) => {
   try {
     const { id, password } = req.body
     if (id && password) {
-      const user = await User.findByCredentials(id, password).populate({
-        path: 'majorId',
-        populate: {
-          path: 'departmentId',
-          model: 'Department'
-        }
-      });
+      const user = await User.findByCredentials(id, password)
       if (!user) {
         return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.invalid_credentials));
       }
