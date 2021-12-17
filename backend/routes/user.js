@@ -269,7 +269,7 @@ router.post('/login', async (req, res) => {
     }
   } catch (error) {
     //TODO
-    //console.log(error);
+    console.log(error);
     res.status(400).send(ResponseUtil.makeMessageResponse(error.message))
   }
 })

@@ -6,6 +6,7 @@ const stringMessage = require('../value/string')
 const userUtil = require('../util/UserUtils')
 const enumModel = require('../value/model')
 const { CreateSchema } = require('./BaseSchema')
+const { STATUS } = require('../value/model')
 
 const modelName = 'User'
 
