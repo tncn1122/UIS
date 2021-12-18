@@ -210,8 +210,6 @@ router.put('/:id/password', auth.isUser, async (req, res) => {
     let user_id = req.params.id;
     userUtil.onlyAdminAndOwner(current_user, user_id)
 
-
-
     if (current_user.role !== 'admin') {
       // check if old password is correct  
       const user = await User.findByCredentials(current_user.userId, userUpdate.old_password)
@@ -220,7 +218,7 @@ router.put('/:id/password', auth.isUser, async (req, res) => {
       }
     }
     else {
-      current_user = await User.findOne({ userId: user_id }).populate({
+      current_user = await User.findOne({ userId: user_id, status: { $ne: STATUS.DELETED } }).populate({
         path: 'majorId',
         populate: {
           path: 'departmentId',
@@ -245,7 +243,13 @@ router.put('/:id/password', auth.isUser, async (req, res) => {
       else {
         res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
       }
-    });
+    }).populate({
+      path: 'majorId',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    });;
 
 
   } catch (error) {
