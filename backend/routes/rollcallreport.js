@@ -52,7 +52,7 @@ router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
     const subjecId = req.params.subjectId
     const semester = req.params.semester
     const subjectInfo = await findClass(subjecId, semester)
-    const subTeacher = getTeacherOfClass(subjectInfo)
+    const subTeacher = await getTeacherOfClass(subjectInfo)
 
     if (subTeacher && req.user.userId !== subTeacher.userId && req.user.role !== 'admin') {
       throw new Error(stringMessage.not_auth);
@@ -373,8 +373,9 @@ async function findClassInfo(subjectId) {
 }
 
 async function findReportById(reportId) {
-  const report = await RollCallReport.findOne({ id: reportId }).populate({
+  const report = await RollCallReport.findOne({ rollcallReportId: reportId }).populate({
     path: 'content',
+    path: 'subjectId',
     populate: {
       path: 'user',
       model: 'User'
