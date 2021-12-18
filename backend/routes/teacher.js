@@ -8,6 +8,7 @@ const ClassInfo = require('../models/ClassInfo');
 const stringMessage = require('../value/string');
 const QR = require('../util/QR');
 const { getAllSubjectsOfTeacher } = require('../util/ClassUtils');
+const { STATUS } = require('../value/model');
 const router = express.Router()
 
 
@@ -96,7 +97,7 @@ router.get('/:id', auth.isUser, async (req, res) => {
  */
 router.get('/:id/class', auth.isUser, async (req, res) => {
   try {
-    let userResponse = await User.findOne({ id: req.params.id, role: 'teacher' })
+    let userResponse = await User.findOne({ userId: req.params.id, role: 'teacher', status: { $ne: STATUS.DELETED } })
     if (!userResponse) {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }

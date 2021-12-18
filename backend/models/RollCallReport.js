@@ -30,38 +30,21 @@ const modelName = 'RollcallReport'
  */
 
 const reportschema = baseSchema.CreateSchema({
-  id: {
-    type: String,
-    require: true,
-    trim: true
-  },
-  subject: {
+  rollcallReportId: {
     type: String,
     require: true,
     trim: true
   },
   content: [{
-    user: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'User',
+      type: mongoose.Schema.Types.ObjectId, ref: 'Rollcall',
       require: true
     },
-    status: {
-      type: String,
-      enum: {
-        values: ['late', 'ontime', 'absent'],
-        message: "Trạng thái không đúng!"
-      },
-      require: true
-    }
-  }],
+  ],
   qrUrl: {
     type: String,
     require: true
   },
   date: {
-    type: String
-  },
-  shift: {
     type: String
   },
   subjectName: {
@@ -84,13 +67,8 @@ const reportschema = baseSchema.CreateSchema({
   },
   // Refactor
   // TODO: refactor
-  rollcallReportId: {
-    type: String,
-    unique: true,
-    require: true,
-    trim: true
-  },
-  subjectObj: {
+  
+  subjectId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Subject',
     require: true,
   }
@@ -107,6 +85,6 @@ reportschema.pre('save', async function (next) {
   next();
 })
 
-const rollcallReport = mongoose.model(modelName, reportschema);
+const RollcallReport = mongoose.model(modelName, reportschema);
 
-module.exports = rollcallReport;
+module.exports = RollcallReport;

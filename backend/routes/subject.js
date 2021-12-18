@@ -105,8 +105,8 @@ router.get('/', auth.isAdmin, async (req, res) => {
     const subjects = await Subject.find({}).populate('roomId');
     const listSubject = await Promise.all(subjects.map(async (item) => {
       const subjectObj = item.toObject()
-      const students = await getStudentInSubject(subjectObj)
-      const teacher = await getTeacherInSubject(subjectObj)
+      const students = await classUtil.getStudentInSubject(subjectObj)
+      const teacher = await classUtil.getTeacherInSubject(subjectObj)
       return {
         ...subjectObj,
         students,
@@ -136,8 +136,8 @@ router.delete('/:id/:semester', auth.isAdmin, async (req, res) => {
     let subjectId = req.params.id;
     let semester = req.params.semester;
     const classInfo = await Subject.findOne({ subjectId, semester, status: { $ne: STATUS.DELETED } }).populate('roomId');
-    const students = await getStudentInSubject(classInfo)
-    const teacher = await getTeacherInSubject(classInfo)
+    const students = await classUtil.getStudentInSubject(classInfo)
+    const teacher = await classUtil.getTeacherInSubject(classInfo)
     if (classInfo) {
       await Subject.findOneAndUpdate({ subjectId, status: { $ne: STATUS.DELETED } }, { status: STATUS.DELETED }, { runValidators: true }, function (error, raw) {
         if (!error) {
@@ -261,8 +261,8 @@ router.get('/:id/:semester', auth.isUser, async (req, res) => {
     let classInfo = await findSubject(subjectId, semester);
     if (classInfo) {
       classInfo = classInfo.toObject()
-      const students = await getStudentInSubject(classInfo)
-      const teacher = await getTeacherInSubject(classInfo)
+      const students = await classUtil.getStudentInSubject(classInfo)
+      const teacher = await classUtil.getTeacherInSubject(classInfo)
       res.status(200).send(ResponseUtil.makeResponse({
         ...classInfo,
         students,
@@ -280,38 +280,38 @@ router.get('/:id/:semester', auth.isUser, async (req, res) => {
   }
 })
 
-async function getStudentInSubject(subjectObj) {
-  const listStudents = await SubjectStudent.find({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
-    path: 'studentId',
-    populate: {
-      path: 'majorId',
-      model: 'Major',
-      populate: {
-        path: 'departmentId',
-        model: 'Department'
-      }
-    }
-  })
-  return listStudents.map((item) => {
-    const { studentId } = item
-    return studentId
-  })
-}
+// async function getStudentInSubject(subjectObj) {
+//   const listStudents = await SubjectStudent.find({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
+//     path: 'studentId',
+//     populate: {
+//       path: 'majorId',
+//       model: 'Major',
+//       populate: {
+//         path: 'departmentId',
+//         model: 'Department'
+//       }
+//     }
+//   })
+//   return listStudents.map((item) => {
+//     const { studentId } = item
+//     return studentId
+//   })
+// }
 
-async function getTeacherInSubject(subjectObj) {
-  const teacher = await SubjectTeacher.findOne({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
-    path: 'teacherId',
-    populate: {
-      path: 'majorId',
-      model: 'Major',
-      populate: {
-        path: 'departmentId',
-        model: 'Department'
-      }
-    }
-  })
-  return teacher?.teacherId
-}
+// async function getTeacherInSubject(subjectObj) {
+//   const teacher = await SubjectTeacher.findOne({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
+//     path: 'teacherId',
+//     populate: {
+//       path: 'majorId',
+//       model: 'Major',
+//       populate: {
+//         path: 'departmentId',
+//         model: 'Department'
+//       }
+//     }
+//   })
+//   return teacher?.teacherId
+// }
 
 async function createTeacherInSubject(teacherId, subjectObj) {
   const teacher = await User.findOne({ userId: teacherId, status: { $ne: STATUS.DELETED } });
@@ -377,8 +377,8 @@ async function createStudentList(student_id_list) {
   return Promise.all(student_list);
 }
 
-async function findSubject(subjectId) {
-  const classInfo = await Subject.findOne({ subjectId: subjectId }).populate('roomId');
+async function findSubject(subjectId, semester) {
+  const classInfo = await Subject.findOne({ subjectId: subjectId, semester }).populate('roomId');
   return classInfo;
 }
 

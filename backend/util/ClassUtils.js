@@ -119,6 +119,39 @@ async function getTeacherOfClass(classObj){
   return teacher
 }
 
+async function getStudentInSubject(subjectObj) {
+  const listStudents = await SubjectStudent.find({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'studentId',
+    populate: {
+      path: 'majorId',
+      model: 'Major',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    }
+  })
+  return listStudents.map((item) => {
+    const { studentId } = item
+    return studentId
+  })
+}
+
+async function getTeacherInSubject(subjectObj) {
+  const teacher = await SubjectTeacher.findOne({ subjectId: subjectObj, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'teacherId',
+    populate: {
+      path: 'majorId',
+      model: 'Major',
+      populate: {
+        path: 'departmentId',
+        model: 'Department'
+      }
+    }
+  })
+  return teacher?.teacherId
+}
+
 async function getAllSubjectsOfStudent(studentObj) {
   const listSubject = await SubjectStudent.find({ studentId: studentObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate({
     path: 'subjectId',
@@ -129,10 +162,11 @@ async function getAllSubjectsOfStudent(studentObj) {
   });
   
   return await Promise.all(listSubject.map(async item => {
-    const students = await getStudentInSubject(classInfo)
-    const teacher = await getTeacherInSubject(classInfo)
+    const {subjectId} = item
+    const students = await getStudentInSubject(subjectId)
+    const teacher = await getTeacherInSubject(subjectId)
     return {
-      ...item.subjectId,
+      ...subjectId.toObject(),
       students,
       teacher
     }
@@ -140,7 +174,7 @@ async function getAllSubjectsOfStudent(studentObj) {
 }
 
 async function getAllSubjectsOfTeacher(teacherObj) {
-  const listSubject = await SubjectStudent.find({ teacherId: teacherObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate({
+  const listSubject = await SubjectTeacher.find({ teacherId: teacherObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate({
     path: 'subjectId',
       populate: {
         path: 'roomId',
@@ -148,10 +182,11 @@ async function getAllSubjectsOfTeacher(teacherObj) {
       }
   });
   return await Promise.all(listSubject.map(async item => {
-    const students = await getStudentInSubject(classInfo)
-    const teacher = await getTeacherInSubject(classInfo)
+    const {subjectId} = item
+    const students = await getStudentInSubject(subjectId)
+    const teacher = await getTeacherInSubject(subjectId)
     return {
-      ...item.subjectId,
+      ...subjectId.toObject(),
       students,
       teacher
     }
@@ -265,5 +300,7 @@ module.exports = {
   getMarksOfStudent,
   getAllSubjectsOfStudent,
   getAllSubjectsOfTeacher,
-  getTeacherOfClass
+  getTeacherOfClass,
+  getStudentInSubject,
+  getTeacherInSubject
 }

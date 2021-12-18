@@ -91,5 +91,6 @@ module.exports = {
   getDate,
   getStatusCheckin,
   isAbleToCheckin,
-  findReport
+  findReport,
+  generateReportContent
 }

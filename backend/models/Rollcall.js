@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ROLLCALL_STATUS } = require('../value/model');
 const baseSchema = require('./BaseSchema')
 
 const modelName = 'Rollcall'
@@ -9,20 +10,21 @@ const rollcallSchema = baseSchema.CreateSchema({
     require: true,
     trim: true
   },
-  userId: {
+  studentId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'User',
     require: true
   },
   rollcallStatus: {
     type: String,
     enum: {
-      values: ['late', 'ontime', 'absent'],
+      values: ROLLCALL_STATUS.ENUM,
       message: "Trạng thái không đúng!"
     },
+    default: ROLLCALL_STATUS.ABSENT,
     require: true
   }
 }, modelName)
 
-const rollcall = mongoose.model(modelName, rollcallSchema);
+const Rollcall = mongoose.model(modelName, rollcallSchema);
 
-module.exports = rollcall;
+module.exports = Rollcall;

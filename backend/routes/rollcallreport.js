@@ -13,6 +13,7 @@ const reportUtil = require('../util/ReportUtils');
 const styleWorkbook = require('../util/StyleWorkbook');
 const excel = require('excel4node');
 const rollcallReport = require('../models/RollCallReport');
+const { findClass, getTeacherOfClass } = require('../util/ClassUtils');
 
 
 
@@ -34,34 +35,43 @@ const rollcallReport = require('../models/RollCallReport');
 
 /**
  * Tạo danh sách điểm danh. Chỉ có tài khoản có quyền Admin hoặc teacher mới thực hiện được chức năng này.
- * @route POST /reports/{subject_id}
+ * @route POST /reports/{subjectId}/{semester}
  * @group Report
- * @param {string} subject_id.path.required - id lớp cần điểm danh
+ * @param {string} subjectId.path.required - id lớp cần điểm danh
+ * @param {string} semester.path.required - mã học kì lớp cần điểm danh
  * @param {ReportConfig.model} config.body.required - config cho bảng điểm danh
  * @returns {ListReports.model} 200 - Thông tin tài khoản và token ứng với tài khoản đó.
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.post('/:subject_id', auth.isReporter, async (req, res) => {
+router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
   // Create a new report
   try {
-    const subjectInfo = await findClass(req.params.subject_id);
-    if (req.user.id !== subjectInfo.teacher.id && req.user.role !== 'admin') {
+    const subjecId = req.params.subjectId
+    const semester = req.params.semester
+    const subjectInfo = await findClass(subjecId, semester)
+    const subTeacher = getTeacherOfClass(subjectInfo)
+
+    if (subTeacher && req.user.userId !== subTeacher.userId && req.user.role !== 'admin') {
       throw new Error(stringMessage.not_auth);
     }
     let idx = reportUtil.isAbleCreatedReport(subjectInfo.schedule);
     if (idx == -1) {
       throw new Error(stringMessage.create_report_time_expired);
     }
-    let report = await findReport(reportUtil.getDate(), subjectInfo.id, subjectInfo.shift)
+
+    let report = await findReport(reportUtil.getDate(), subjectInfo)
     if (report) {
       return res.status(200).send(ResponseUtil.makeResponse(report));
     }
+    const rollcallReportId = reportUtil.genReportId(subjectInfo.subjectId, subjectInfo.schedule[idx])
+    const content = await reportUtil.generateReportContent()
+
     report = {
-      id: reportUtil.genReportId(subjectInfo.id, subjectInfo.schedule[idx]),
+      rollcallReportId,
       ...req.body,
-      subject: subjectInfo.id,
+      subjectId: subjectInfo,
       subjectName: subjectInfo.name,
       teacher: subjectInfo.teacher,
       content: subjectInfo.students.map(student => ({
@@ -69,7 +79,6 @@ router.post('/:subject_id', auth.isReporter, async (req, res) => {
         status: 'absent'
       })),
       expired: subjectInfo.shift === '0' ? '11:30' : '16:30',
-      shift: subjectInfo.shift
     }
     const newReport = new RollCallReport(report);
     await newReport.save();
@@ -325,24 +334,24 @@ async function findUser(userId) {
   return await User.findOne({ id: userId });
 }
 
-async function findClass(subjectId) {
-  const subjectInfo = await ClassInfo.findOne({ id: subjectId }).populate('students').populate('monitors').populate('teacher');
-  if (!subjectInfo) {
-    throw new Error(stringMessage.subject_not_found);
-  }
-  return subjectInfo;
-}
+// async function findClass(subjectId) {
+//   const subjectInfo = await ClassInfo.findOne({ id: subjectId }).populate('students').populate('monitors').populate('teacher');
+//   if (!subjectInfo) {
+//     throw new Error(stringMessage.subject_not_found);
+//   }
+//   return subjectInfo;
+// }
 
-async function findReport(date, subject, shift) {
-  const report = await RollCallReport.findOne({ date: date, subject: subject, shift: shift }).populate({
-    path: 'content',
-    populate: {
-      path: 'user',
-      model: 'User'
-    }
-  });
-  return report;
-}
+// async function findReport(date, subject, shift) {
+//   const report = await RollCallReport.findOne({ date: date, subject: subject, shift: shift }).populate({
+//     path: 'content',
+//     populate: {
+//       path: 'user',
+//       model: 'User'
+//     }
+//   });
+//   return report;
+// }
 
 
 

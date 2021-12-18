@@ -3,5 +3,11 @@ module.exports = {
     ACTIVE: 'ACTIVE',
     DELETED: 'DELETED'
   },
-  ENUM_ROLE: ['admin', 'student', 'teacher']
+  ENUM_ROLE: ['admin', 'student', 'teacher'],
+  ROLLCALL_STATUS: {
+    ENUM: ['late', 'ontime', 'absent'],
+    LATE: 'late',
+    ONTIME: 'ontime',
+    ABSENT: 'absent'
+  }
 };
