@@ -120,12 +120,24 @@ async function getTeacherOfClass(classObj){
 }
 
 async function getAllSubjectsOfStudent(studentObj) {
-  const listSubject = await SubjectStudent.find({ studentId: studentObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate('subjectId');
+  const listSubject = await SubjectStudent.find({ studentId: studentObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate({
+    path: 'subjectId',
+      populate: {
+        path: 'roomId',
+        model: 'Room'
+      }
+  });
   return listSubject.map(item => item.subjectId);
 }
 
 async function getAllSubjectsOfTeacher(teacherObj) {
-  const listSubject = await SubjectStudent.find({ teacherId: teacherObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate('subjectId');
+  const listSubject = await SubjectStudent.find({ teacherId: teacherObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate({
+    path: 'subjectId',
+      populate: {
+        path: 'roomId',
+        model: 'Room'
+      }
+  });
   return listSubject.map(item => item.subjectId);
 }
 
