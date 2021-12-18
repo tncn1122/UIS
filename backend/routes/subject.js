@@ -226,7 +226,7 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
     const students = await createStudentList(classUpdate.students || []);
     await deleteStudentInSubject(students, savedSubject)
     await createStudentInSubject(students, savedSubject)
-
+   
 
     res.status(201).send(ResponseUtil.makeResponse({
       ...savedSubject,
@@ -336,8 +336,8 @@ async function createStudentInSubject(listStudents, subjectObj) {
 async function deleteStudentInSubject(listStudents, subjectObj) {
   console.log(listStudents);
   await Promise.all(listStudents.map(async (item) => {
-    const subStudent = await SubjectStudent.findOne({ studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED } })
-    if (subStudent) {
+    const subStudent = await SubjectStudent.findOne({studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED }})
+    if(subStudent){
       await subStudent.remove()
     }
   }))
@@ -429,14 +429,17 @@ async function updateStudentClass(student_state_list, class_id) {
 
 async function updateTeacherClass(teacherObj, classObj) {
   if (teacherObj) {
-    await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, { teacherId: teacherObj }, async function (error, raw) {
+    await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, {teacherId: teacherObj}, async function (error, raw) {
       if (!error) {
         if (raw) {
           await raw.save();
         }
         else {
-          throw new Error(ResponseUtil.makeMessageResponse(subject_not_found))
-
+          const subTeacher = new SubjectTeacher({
+            subjectId: classObj,
+            teacherId: teacherObj
+          })
+          await subTeacher.save()
         }
       }
       else {
@@ -457,7 +460,7 @@ async function deleteTeacherClass(teacherObj, classObj) {
 }
 
 async function findUser(userId) {
-  if (!userId) {
+  if(!userId){
     return null
   }
   let user = await User.findOne({ userId, status: { $ne: STATUS.DELETED } }).populate({
