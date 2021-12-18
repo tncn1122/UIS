@@ -3,6 +3,7 @@ const ClassInfo = require('../models/ClassInfo');
 const moment = require('moment-timezone');
 const Subject = require('../models/Subject');
 const { STATUS } = require('../value/model');
+const { startDate_wrong, dayOfWeek_wrong } = require('../value/string');
 
 
 const week = {
@@ -55,13 +56,20 @@ function isChangeExpired(startDate) {
 
 function genSchedule(startDate, shift, days, dayOfWeek) {
   let schedule = [];
-  //console.log(startDate);
-  if(!startDate || !shift || !days || !dayOfWeek){
+  console.log(startDate, shift, days, dayOfWeek);
+  if(!startDate || !dayOfWeek){
     return []
   }
   let day = moment(startDate, 'DD-MM-YYYY');
+  let flag = 0
+  if(!week.hasOwnProperty(dayOfWeek)){
+    throw new Error(dayOfWeek_wrong)
+  }
   while (day.format('dddd') !== week[dayOfWeek]) {
-    console.log(startDate, day);
+    flag = flag+1
+    if(flag > 10){
+      throw new Error(startDate_wrong)
+    }
     day.add(1, 'days');
   }
   for (let times = 0; times < days; times++) {
