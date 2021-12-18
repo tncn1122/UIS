@@ -255,7 +255,6 @@ router.put('/:id/password', auth.isUser, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).send(ResponseUtil.makeMessageResponse(error.message))
-
   }
 })
 

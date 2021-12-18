@@ -148,7 +148,6 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
     if (classInfo) {
       await Subject.findOneAndUpdate({ subjectId, status: { $ne: STATUS.DELETED } }, { status: STATUS.DELETED }, { runValidators: true }, function (error, raw) {
         if (!error) {
-          console.log("raw", subjectId, raw);
           if (raw) {
             raw.save();
             res.status(201).send(ResponseUtil.makeResponse({

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const User = require('../models/User')
+const { STATUS } = require('../value/model')
 const stringMessage = require('../value/string')
 
 const isUser = async (req, res, next) => {
@@ -97,13 +98,19 @@ const isStudent = async (req, res, next) => {
 
 
 const findUserBytoken = async (id, token) => {
-  return await User.findOne({ _id: id, token, status: { $ne: STATUS.DELETED }}).populate({
+  const user =  await User.findOne({ _id: id, token, status: { $ne: STATUS.DELETED }}).populate({
     path: 'majorId',
     populate: {
       path: 'departmentId',
       model: 'Department'
     }
   });
+  console.log('id', id);
+  console.log('user', {
+    name: user.firstName,
+    role: user.role
+  });
+  return user
 }
 module.exports = {
   isUser,
