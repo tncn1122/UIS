@@ -127,7 +127,16 @@ async function getAllSubjectsOfStudent(studentObj) {
         model: 'Room'
       }
   });
-  return listSubject.map(item => item.subjectId);
+  
+  return await Promise.all(listSubject.map(async item => {
+    const students = await getStudentInSubject(classInfo)
+    const teacher = await getTeacherInSubject(classInfo)
+    return {
+      ...item.subjectId,
+      students,
+      teacher
+    }
+  }));
 }
 
 async function getAllSubjectsOfTeacher(teacherObj) {
@@ -138,7 +147,15 @@ async function getAllSubjectsOfTeacher(teacherObj) {
         model: 'Room'
       }
   });
-  return listSubject.map(item => item.subjectId);
+  return await Promise.all(listSubject.map(async item => {
+    const students = await getStudentInSubject(classInfo)
+    const teacher = await getTeacherInSubject(classInfo)
+    return {
+      ...item.subjectId,
+      students,
+      teacher
+    }
+  }));
 }
 
 function validateDate(date) {
