@@ -382,7 +382,14 @@ async function findReportById(reportId) {
     path: 'content',
     populate: {
       path: 'studentId',
-      model: 'User'
+      populate: {
+        path: 'majorId',
+        model: 'Major',
+        populate: {
+          path: 'departmentId',
+          model: 'Department',
+        }
+      }
     }
   });
   if (!report) {
