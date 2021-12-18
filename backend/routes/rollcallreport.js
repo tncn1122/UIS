@@ -374,13 +374,12 @@ async function findClassInfo(subjectId) {
 
 async function findReportById(reportId) {
   const report = await RollCallReport.findOne({ rollcallReportId: reportId }).populate({
-    path: 'content',
     path: 'subjectId',
     populate: {
       path: 'user',
       model: 'User'
     }
-  });
+  }).populate('content');
   if (!report) {
     throw new Error(stringMessage.report_not_found);
   }
