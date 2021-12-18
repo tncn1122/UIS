@@ -72,8 +72,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
 
     const user = new User(userInfo);
     const uniqueId = await user.isUnique(userInfo.userId)
-
-    if (uniqueId) {
+    if (!uniqueId) {
       throw new Error(user_exist)
     }
 
@@ -155,7 +154,7 @@ router.put('/:id', auth.isUser, async (req, res) => {
     userUpdate.majorId = userMajor
 
     const uniqueId = await findUser(userUpdate.userId)
-    if(uniqueId){
+    if(uniqueId && userUpdate.userId !== user_id){
       throw new Error(user_exist)
     }
 

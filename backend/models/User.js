@@ -154,20 +154,13 @@ userSchema.statics.findByCredentials = async (id, password) => {
 }
 
 userSchema.methods.isUnique = async (id, email) => {
-  const userId = await User.findOne({ userId: id })
+  const userId = await User.findOne({ userId: id,  status: { $ne: STATUS.DELETED }})
   if (userId) {
     return false;
   }
   return true;
 }
 
- const isUniqueId = async (id) => {
-  const userId = await User.findOne({ userId: id })
-  if (userId) {
-    return false;
-  }
-  return true;
-}
 //===
 const User = mongoose.model(modelName, userSchema)
 
