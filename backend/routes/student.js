@@ -104,8 +104,8 @@ router.get('/:id/class', auth.isUser, async (req, res) => {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
     else {
-      if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
-        return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.not_auth));
+      if ((req.user.role !== "admin") && req.user.userId !== req.params.id) {
+        return res.status(401).send(ResponseUtil.makeMessageResponse(stringMessage.not_auth));
       }
       res.status(200).send(ResponseUtil.makeResponse(await getAllSubjectsOfStudent(userResponse)));
     }
