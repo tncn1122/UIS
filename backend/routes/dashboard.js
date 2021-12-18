@@ -9,6 +9,7 @@ const QR = require('../util/QR');
 const ClassInfo = require('../models/ClassInfo');
 const Department = require('../models/Department');
 const { STATUS } = require('../value/model');
+const Subject = require('../models/Subject');
 const router = express.Router()
 
 /**
@@ -38,7 +39,7 @@ const router = express.Router()
 
     const studentList = await User.find({role:"student", status: {$ne: STATUS.DELETED}})
     const teacherList = await User.find({role:"teacher", status: {$ne: STATUS.DELETED}})
-    const classList = await ClassInfo.find({status: {$ne: STATUS.DELETED}})
+    const classList = await Subject.find({status: {$ne: STATUS.DELETED}})
     const departmentList = await Department.find({status: { $ne: STATUS.DELETED }})
 
 

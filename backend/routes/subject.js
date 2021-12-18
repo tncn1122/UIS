@@ -60,15 +60,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
 
     let teacher = null
     if (req.body.hasOwnProperty('teacherId')) {
-      teacher = await User.findOne({ userId: req.body.teacherId, status: { $ne: STATUS.DELETED } });
-      if (!teacher) {
-        return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found + "Giảng viên mã: " + req.body.teacherId));
-      }
-      const subTeacher = new SubjectTeacher({
-        teacherId: teacher,
-        subjectId: savedSubject
-      })
-      await subTeacher.save()
+      teacher = await createTeacherInSubject(req.body.teacherId, savedSubject)
     }
 
     let students = [];
@@ -85,7 +77,6 @@ router.post('/', auth.isAdmin, async (req, res) => {
     // update student
 
     // update teacher
-
     res.status(201).send(ResponseUtil.makeResponse({
       ...savedSubject.toObject(),
       teacher,
@@ -228,20 +219,15 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
     const savedSubject = { ...classInfo.toObject(), ...bodyUpdate }
 
     // update teacher
-    const teacher = await findUser(classUpdate.teacherId);
+    const teacher = await findUser(classUpdate.teacher);
     await updateTeacherClass(teacher, classInfo);
 
     // update student
     const students = await createStudentList(classUpdate.students || []);
-    await Promise.all(students.map(async (item) => {
-      const subTeacher = new SubjectStudent({
-        studentId: item,
-        subjectId: savedSubject
-      })
-      await subTeacher.save()
-    }))
+    await deleteStudentInSubject(students, savedSubject)
+    await createStudentInSubject(students, savedSubject)
+   
 
-    console.log(savedSubject);
     res.status(201).send(ResponseUtil.makeResponse({
       ...savedSubject,
       teacher,
@@ -319,6 +305,39 @@ async function getTeacherInSubject(subjectObj) {
     }
   })
   return teacher?.teacherId
+}
+
+async function createTeacherInSubject(teacherId, subjectObj) {
+  const teacher = await User.findOne({ userId: teacherId, status: { $ne: STATUS.DELETED } });
+  if (!teacher) {
+    throw new Error(stringMessage.user_not_found + "Giảng viên mã: " + req.body.teacherId)
+  }
+  const subTeacher = new SubjectTeacher({
+    teacherId: teacher,
+    subjectId: subjectObj
+  })
+  await subTeacher.save()
+  return teacher
+}
+
+
+async function createStudentInSubject(listStudents, subjectObj) {
+  await Promise.all(listStudents.map(async (item) => {
+    const subStudent = new SubjectStudent({
+      studentId: item,
+      subjectId: subjectObj
+    })
+    await subStudent.save()
+  }))
+}
+
+
+
+async function deleteStudentInSubject(listStudents, subjectObj) {
+  await Promise.all(listStudents.map(async (item) => {
+    const subStudent = await SubjectStudent.findOne({studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED }})
+    await subStudent.remove
+  }))
 }
 
 async function findStudent(userId) {
@@ -406,27 +425,39 @@ async function updateStudentClass(student_state_list, class_id) {
 }
 
 async function updateTeacherClass(teacherObj, classObj) {
-  await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, { teacherId: teacherObj }, async function (error, raw) {
-    if (!error) {
-      if (raw) {
-        await raw.save();
+  if (teacherObj) {
+    await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, { teacherId: teacherObj }, async function (error, raw) {
+      if (!error) {
+        if (raw) {
+          await raw.save();
+        }
+        else {
+          const subTeacher = new SubjectTeacher({
+            subjectId: classObj,
+            teacherId: teacherObj
+          })
+          await subTeacher.save()
+        }
       }
       else {
-        const subTeacher = new SubjectTeacher({
-          subjectId: classObj,
-          teacherId: teacherObj
-        })
-        await subTeacher.save()
+        throw new Error(ResponseUtil.makeMessageResponse(error.message))
       }
-    }
-    else {
-      throw new Error(ResponseUtil.makeMessageResponse(error.message))
-    }
-  });
+    });
+  }
+  else {
+    await deleteTeacherClass(teacherObj, classObj)
+  }
+}
+
+async function deleteTeacherClass(teacherObj, classObj) {
+  const teacherClass = await SubjectTeacher.findOne({ teacherId: teacherObj, subjectId: classObj, status: { $ne: STATUS.DELETED } })
+  if (teacherClass) {
+    await teacherClass.remove()
+  }
 }
 
 async function findUser(userId) {
-  let user = await User.findOne({ id: userId });
+  let user = await User.findOne({ id: userId, status: { $ne: STATUS.DELETED } });
   if (user) {
     return user;
   }
