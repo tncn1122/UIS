@@ -76,8 +76,6 @@ router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
       rollcallReportId,
       ...req.body,
       subjectId: subjectInfo,
-      subjectName: subjectInfo.name,
-      teacher: subjectInfo.teacher,
       content,
       expired: subjectInfo.shift === '0' ? '11:30' : '16:30',
     }

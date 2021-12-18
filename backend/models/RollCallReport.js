@@ -45,12 +45,6 @@ const reportschema = baseSchema.CreateSchema({
   date: {
     type: String
   },
-  subjectName: {
-    type: String
-  },
-  teacherName: {
-    type: String
-  },
   expired: {
     type: String,
     require: true
@@ -63,8 +57,6 @@ const reportschema = baseSchema.CreateSchema({
     type: Boolean,
     required: true
   },
-  // Refactor
-  // TODO: refactor
   
   subjectId: {
     type: mongoose.Schema.Types.ObjectId, ref: 'Subject',
