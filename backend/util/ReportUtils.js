@@ -65,8 +65,8 @@ function getStatusCheckin(reportInfo) {
 }
 
 
-async function findReport(stringDate, subjectObj){
-  return await RollCallReport.findOne({date: stringDate, subjectId: subjectObj}).populate({
+async function findReport(stringDate, subjectObj) {
+  return await RollCallReport.findOne({ date: stringDate, subjectId: subjectObj }).populate({
     path: 'subjectId',
     populate: {
       path: 'roomId',
@@ -76,12 +76,16 @@ async function findReport(stringDate, subjectObj){
     path: 'content',
     populate: {
       path: 'studentId',
-      model: 'User'
+      model: 'User',
+      populate: {
+        path: 'majorId',
+        model: 'Major',
+      }
     }
   });
 }
 
-async function generateReportContent(reportId, listStudents){
+async function generateReportContent(reportId, listStudents) {
   const results = await Promise.all(listStudents.map(async item => {
     const rollcall = new Rollcall({
       rollcallReportId: reportId,
