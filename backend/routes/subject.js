@@ -429,8 +429,10 @@ async function updateStudentClass(student_state_list, class_id) {
 
 async function updateTeacherClass(teacherObj, classObj) {
   if (teacherObj) {
-    await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, {teacherId: teacherObj}, async function (error, raw) {
+    await SubjectTeacher.findOneAndUpdate({ subjectId: classObj }, {teacherId: teacherObj}, async function (error, raw) {
       if (!error) {
+        console.log('raw', raw);
+        console.log('classObj', classObj);
         if (raw) {
           await raw.save();
         }
@@ -453,7 +455,14 @@ async function updateTeacherClass(teacherObj, classObj) {
 }
 
 async function deleteTeacherClass(teacherObj, classObj) {
-  const teacherClass = await SubjectTeacher.findOne({ teacherId: teacherObj, subjectId: classObj, status: { $ne: STATUS.DELETED } })
+  const query = {
+    subjectId: classObj,
+    status: { $ne: STATUS.DELETED } 
+  }
+  if(teacherObj){
+    query.teacherId = teacherObj
+  }
+  const teacherClass = await SubjectTeacher.findOne({...query})
   if (teacherClass) {
     await teacherClass.remove()
   }
