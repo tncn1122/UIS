@@ -102,11 +102,11 @@ function SubjectPage() {
         UI.formatDate(value)
       ))
     },
-    {
-      title: "LỊCH HỌC",
-      key: "schedule",
-      dataIndex: "schedule",
-    },
+    // {
+    //   title: "LỊCH HỌC",
+    //   key: "schedule",
+    //   dataIndex: "schedule",
+    // },
     {
       title: "TRẠNG THÁI",
       key: "status",
@@ -152,7 +152,7 @@ function SubjectPage() {
 
   const dropdownOptions = (record) => (
     <Menu disabled={record.status === STATUS.DELETED}>
-      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => { history.push(`/user/${record.userId}`) }}>
+      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => { history.push(`/subject/${record.subjectId}`) }}>
         Trang Cá Nhân
       </Menu.Item>
       <Menu.Item key="1" icon={<EditOutlined />} onClick={(e) => { onClickEditButton(record) }}>
@@ -173,9 +173,9 @@ function SubjectPage() {
     confirm({
       title: 'Xác nhận xóa môn họcnày?',
       icon: <ExclamationCircleOutlined />,
-      content: `${value.lastName} ${value.firstName}`,
+      content: `${value.name}`,
       onOk() {
-        HttpUtils.delete(URLUtils.buildBeURL(`/subjects/${value.userId}`))
+        HttpUtils.delete(URLUtils.buildBeURL(`/subjects/${value.subjectId}`))
           .then(resp => {
             notification.success({
               message: 'Xóa thành công',

@@ -60,7 +60,7 @@ router.post('/', auth.isAdmin, async (req, res) => {
 
     let teacher = null
     if (req.body.hasOwnProperty('teacherId')) {
-      teacher = await User.findOne({ userId: req.body.teacherId, status: { $ne: STATUS.DELETED }});
+      teacher = await User.findOne({ userId: req.body.teacherId, status: { $ne: STATUS.DELETED } });
       if (!teacher) {
         return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found + "Giảng viên mã: " + req.body.teacherId));
       }
@@ -142,11 +142,29 @@ router.get('/', auth.isAdmin, async (req, res) => {
 router.delete('/:id', auth.isAdmin, async (req, res) => {
   try {
     let subjectId = req.params.id;
-    const classInfo = await ClassInfo.findOne({ id: subjectId });
+    const classInfo = await Subject.findOne({ subjectId, status: { $ne: STATUS.DELETED } }).populate('roomId');
+    const students = await getStudentInSubject(classInfo)
+    const teacher = await getTeacherInSubject(classInfo)
     if (classInfo) {
-      await classInfo.remove();
-      // await ClassInfo.remove({id: subjectId})
-      res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage.deleted_successfully));
+      await Subject.findOneAndUpdate({ subjectId, status: { $ne: STATUS.DELETED } }, { status: STATUS.DELETED }, { runValidators: true }, function (error, raw) {
+        if (!error) {
+          console.log("raw", subjectId, raw);
+          if (raw) {
+            raw.save();
+            res.status(201).send(ResponseUtil.makeResponse({
+              ...raw.toObject(),
+              students,
+              teacher
+            }));
+          }
+          else {
+            return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.room_not_found));
+          }
+        }
+        else {
+          res.status(400).send(ResponseUtil.makeMessageResponse(error.message));
+        }
+      })
     }
     else {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.class_not_found));
@@ -175,7 +193,7 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
 
 
     const classInfo = await classUtil.findClass(subjectId);
-    if(!classInfo){
+    if (!classInfo) {
       throw new Error(subject_not_found)
     }
 
@@ -183,8 +201,8 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
       return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.class_change_timeup));
     }
 
-    const roomInfo = await Room.findOne({roomId: classUpdate.roomId, status: { $ne: STATUS.DELETED } })
-    if(!roomInfo){
+    const roomInfo = await Room.findOne({ roomId: classUpdate.roomId, status: { $ne: STATUS.DELETED } })
+    if (!roomInfo) {
       throw new Error(room_not_found)
     }
     const schedule = classUtil.genSchedule(classUpdate.startDate, +
@@ -194,7 +212,7 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
       roomId: roomInfo,
       schedule
     }
-    await Subject.findOneAndUpdate({subjectId}, bodyUpdate, async function (error, raw) {
+    await Subject.findOneAndUpdate({ subjectId }, bodyUpdate, async function (error, raw) {
       if (!error) {
         if (raw) {
           await raw.save();
@@ -207,8 +225,8 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
         throw new Error(error.message)
       }
     })
-    
-    const savedSubject = {...classInfo.toObject(), ...bodyUpdate}
+
+    const savedSubject = { ...classInfo.toObject(), ...bodyUpdate }
 
     // update teacher
     const teacher = await findUser(classUpdate.teacherId);
@@ -284,7 +302,7 @@ async function getStudentInSubject(subjectObj) {
     }
   })
   return listStudents.map((item) => {
-    const {studentId} = item
+    const { studentId } = item
     return studentId
   })
 }
@@ -389,7 +407,7 @@ async function updateStudentClass(student_state_list, class_id) {
 }
 
 async function updateTeacherClass(teacherObj, classObj) {
-  await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, {teacherId: teacherObj}, async function (error, raw) {
+  await SubjectTeacher.findOneAndUpdate({ subjecId: classObj }, { teacherId: teacherObj }, async function (error, raw) {
     if (!error) {
       if (raw) {
         await raw.save();

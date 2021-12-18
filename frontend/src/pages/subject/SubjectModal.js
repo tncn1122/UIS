@@ -218,12 +218,12 @@ const SubjectModal = (props) => {
                     fontSize: '14px'
                   }}
                 >
-                  <Option value={'2'}>Thứ hai</Option>
-                  <Option value={'3'}>Thứ ba</Option>
-                  <Option value={'4'}>Thứ tư</Option>
-                  <Option value={'5'}>Thứ năm</Option>
-                  <Option value={'6'}>Thứ sáu</Option>
-                  <Option value={'7'}>Thứ bảy</Option>
+                  <Option key={"2"} value={'2'}>Thứ hai</Option>
+                  <Option key={"3"} value={'3'}>Thứ ba</Option>
+                  <Option key={"4"} value={'4'}>Thứ tư</Option>
+                  <Option key={"5"} value={'5'}>Thứ năm</Option>
+                  <Option key={"6"} value={'6'}>Thứ sáu</Option>
+                  <Option key={"7"} value={'7'}>Thứ bảy</Option>
 
                 </Select>
               </Form.Item>
