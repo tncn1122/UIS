@@ -460,7 +460,13 @@ async function deleteTeacherClass(teacherObj, classObj) {
 }
 
 async function findUser(userId) {
-  let user = await User.findOne({ userId, status: { $ne: STATUS.DELETED } });
+  let user = await User.findOne({ userId, status: { $ne: STATUS.DELETED } }).populate({
+    path: 'majorId',
+    populate: {
+      path: 'departmentId',
+      model: 'Department'
+    }
+  });
   if (user) {
     return user;
   }
