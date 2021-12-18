@@ -66,9 +66,19 @@ function getStatusCheckin(reportInfo) {
 
 
 async function findReport(stringDate, subjectObj){
-  const test = await RollCallReport.find({})
-  console.log(test);
-  return await RollCallReport.findOne({date: stringDate, subjectId: subjectObj}).populate('subjectId').populate('content')
+  return await RollCallReport.findOne({date: stringDate, subjectId: subjectObj}).populate({
+    path: 'subjectId',
+    populate: {
+      path: 'roomId',
+      model: 'Room'
+    }
+  }).populate({
+    path: 'content',
+    populate: {
+      path: 'studentId',
+      model: 'User'
+    }
+  });
 }
 
 async function generateReportContent(reportId, listStudents){

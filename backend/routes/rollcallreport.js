@@ -9,6 +9,7 @@ const stringMessage = require('../value/string');
 const QR = require('../util/QR');
 const router = express.Router();
 const userUtil = require('../util/UserUtils');
+const classUtil = require('../util/ClassUtils');
 const reportUtil = require('../util/ReportUtils');
 const styleWorkbook = require('../util/StyleWorkbook');
 const excel = require('excel4node');
@@ -136,17 +137,15 @@ router.get('/:subject_id', auth.isReporter, async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.get('/:subject_id/:date/status', async (req, res) => {
+router.get('/:subject_id/:semester/:date/status', async (req, res) => {
   // Create a new report
   try {
+    const subject_id = req.params.subject_id
+    const semester = req.params.semester
+    const stringDate = req.params.date
 
-    let report = await RollCallReport.findOne({ subject: req.params.subject_id, date: req.params.date }).populate({
-      path: 'content',
-      populate: {
-        path: 'user',
-        model: 'User'
-      }
-    });
+    const subjectObj = await classUtil.findClass(subject_id, semester)
+    let report = await reportUtil.findReport(stringDate, subjectObj)
 
     if (report) {
       console.log(report);
