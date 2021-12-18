@@ -5,6 +5,7 @@ const Subject = require('../models/Subject');
 const { STATUS } = require('../value/model');
 const { startDate_wrong, dayOfWeek_wrong } = require('../value/string');
 const SubjectStudent = require('../models/SubjectStudent');
+const SubjectTeacher = require('../models/SubjectTeacher');
 
 
 
@@ -107,6 +108,25 @@ const week = {
 async function findClass(classId, semester) {
   const classInfo = await Subject.findOne({ subjectId: classId, semester, status: { $ne: STATUS.DELETED } }).populate('roomId');
   return classInfo;
+}
+
+async function getTeacherOfClass(classObj){
+  let teacher = null
+  const subTeacher = await SubjectTeacher.findOne({subjectId : classObj}).populate('teacherId')
+  if(subTeacher){
+    teacher = subTeacher.teacherId
+  }
+  return teacher
+}
+
+async function getAllSubjectsOfStudent(studentObj) {
+  const listSubject = await SubjectStudent.find({ studentId: studentObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate('subjectId');
+  return listSubject.map(item => item.subjectId);
+}
+
+async function getAllSubjectsOfTeacher(teacherObj) {
+  const listSubject = await SubjectStudent.find({ teacherId: teacherObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate('subjectId');
+  return listSubject.map(item => item.subjectId);
 }
 
 function validateDate(date) {
@@ -213,5 +233,8 @@ module.exports = {
   isChangeExpired,
   validateDate,
   validateDays,
-  getMarksOfStudent
+  getMarksOfStudent,
+  getAllSubjectsOfStudent,
+  getAllSubjectsOfTeacher,
+  getTeacherOfClass
 }

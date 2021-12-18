@@ -7,7 +7,9 @@ const User = require('../models/User');
 const ClassInfo = require('../models/ClassInfo');
 const stringMessage = require('../value/string');
 const QR = require('../util/QR')
-const userUtil = require('../util/UserUtils')
+const userUtil = require('../util/UserUtils');
+const { STATUS } = require('../value/model');
+const { getAllSubjectsOfStudent } = require('../util/ClassUtils');
 const router = express.Router()
 
 
@@ -95,45 +97,22 @@ router.get('/:id', auth.isUser, async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-// router.get('/:id/class', auth.isUser, async (req, res) => {
-//   try {
-//     let userResponse = await User.findOne({ id: req.params.id, role: 'student' })
-//     if (!userResponse) {
-//       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
-//     }
-//     else {
-//       if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
-//         return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.not_auth));
-//       }
-//       res.status(200).send(ResponseUtil.makeResponse(await createClassList(userResponse.classes)));
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(400).send(ResponseUtil.makeMessageResponse(error.message))
-//   }
-// })
-
-
-async function createClassList(class_id_list) {
-  let class_list = [];
-
-  if (class_id_list) {
-    for (const class_id of class_id_list) {
-      let classInfo = findClass(class_id);
-      console.log(class_id);
-      if (classInfo) {
-        class_list.push(classInfo);
-      }
-      else {
-        throw new Error(stringMessage.class_not_found + " Môn học: " + class_id.id);
-      }
+router.get('/:id/class', auth.isUser, async (req, res) => {
+  try {
+    let userResponse = await User.findOne({ userId: req.params.id, role: 'student', status: { $ne: STATUS.DELETED } })
+    if (!userResponse) {
+      res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
+    else {
+      if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
+        return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.not_auth));
+      }
+      res.status(200).send(ResponseUtil.makeResponse(await getAllSubjectsOfStudent(userResponse)));
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(ResponseUtil.makeMessageResponse(error.message))
   }
-  return Promise.all(class_list);
-}
+})
 
-async function findClass(classId) {
-  const classInfo = await ClassInfo.findOne({ id: classId }).populate('students').populate('monitors').populate('teacher');
-  return classInfo;
-}
 module.exports = router;

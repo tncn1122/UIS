@@ -2,6 +2,8 @@ const stringMessage = require('../value/string')
 const moment = require('moment-timezone');
 const { formatDate } = require('./TimeUtils');
 const { TIME_ZONE, DATE_FORMAT, HOUR_FORMAT } = require('../value/time');
+const RollcallReport = require('../models/RollCallReport');
+const Rollcall = require('../models/Rollcall');
 
 
 
@@ -30,8 +32,8 @@ function isAbleCreatedReport(dateList) {
     const shift = dateList[0].split('@')[0];
     const now = moment();
     const nowMM = shift + '@' + formatDate(moment(now, DATE_FORMAT));
-    console.log(nowMM);
-    console.log(dateList);
+    // console.log(nowMM);
+    // console.log(dateList);
     return dateList.indexOf(nowMM);
   }
   else {
@@ -67,12 +69,27 @@ function getStatusCheckin(reportInfo) {
 }
 
 
+async function findReport(stringDate, subjectObj){
+  return await RollcallReport.findOne({date: stringDate, subjectId: subjectObj}).populate('subjectId').populate('content')
+}
 
+async function generateReportContent(reportId, listStudents){
+  const results = await Promise.all(listStudents.map(async item => {
+    const rollcall = new Rollcall({
+      rollcallReportId: reportId,
+      studentId: item
+    })
+    await rollcall.save()
+    return rollcall
+  }))
+  return results
+}
 
 module.exports = {
   isAbleCreatedReport,
   genReportId,
   getDate,
   getStatusCheckin,
-  isAbleToCheckin
+  isAbleToCheckin,
+  findReport
 }
