@@ -1,11 +1,9 @@
-const { integer } = require('mongodb');
 const mongoose = require('mongoose');
-const User = require('./User');
-const reportUtil = require('../util/ReportUtils');
 const classtUtil = require('../util/ClassUtils');
 const validateUtil = require('../util/Validate');
 const QR = require('../util/QR');
-const baseSchema = require('./BaseSchema')
+const baseSchema = require('./BaseSchema');
+const { getDate } = require('../util/TimeUtils');
 
 const modelName = 'RollcallReport'
 
@@ -58,7 +56,7 @@ const reportschema = baseSchema.CreateSchema({
     require: true
   },
   checkinLimitTime: {
-    type: String,
+    type: Date,
     require: true
   },
   allowLate: {
@@ -77,7 +75,7 @@ const reportschema = baseSchema.CreateSchema({
 reportschema.pre('save', async function (next) {
   const report = this;
   report.qrUrl = QR.createQR(report.id);
-  report.date = reportUtil.getDate();
+  report.date = getDate()
 
   classtUtil.validateDate(report.checkinLimitTime);
   validateUtil.id(report.id);
@@ -85,6 +83,6 @@ reportschema.pre('save', async function (next) {
   next();
 })
 
-const RollcallReport = mongoose.model(modelName, reportschema);
+const RollCallReport = mongoose.model(modelName, reportschema);
 
-module.exports = RollcallReport;
+module.exports = RollCallReport;

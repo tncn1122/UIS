@@ -13,7 +13,8 @@ const reportUtil = require('../util/ReportUtils');
 const styleWorkbook = require('../util/StyleWorkbook');
 const excel = require('excel4node');
 const rollcallReport = require('../models/RollCallReport');
-const { findClass, getTeacherOfClass } = require('../util/ClassUtils');
+const { findClass, getTeacherOfClass, getStudentInSubject } = require('../util/ClassUtils');
+const { getDate } = require('../util/TimeUtils');
 
 
 
@@ -61,12 +62,15 @@ router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
       throw new Error(stringMessage.create_report_time_expired);
     }
 
-    let report = await findReport(reportUtil.getDate(), subjectInfo)
+    let report = await reportUtil.findReport(getDate(), subjectInfo)
     if (report) {
       return res.status(200).send(ResponseUtil.makeResponse(report));
     }
     const rollcallReportId = reportUtil.genReportId(subjectInfo.subjectId, subjectInfo.schedule[idx])
-    const content = await reportUtil.generateReportContent()
+
+
+    const listStudents = await getStudentInSubject(subjectInfo)
+    const content = await reportUtil.generateReportContent(rollcallReportId, listStudents)
 
     report = {
       rollcallReportId,
@@ -74,10 +78,7 @@ router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
       subjectId: subjectInfo,
       subjectName: subjectInfo.name,
       teacher: subjectInfo.teacher,
-      content: subjectInfo.students.map(student => ({
-        user: student,
-        status: 'absent'
-      })),
+      content,
       expired: subjectInfo.shift === '0' ? '11:30' : '16:30',
     }
     const newReport = new RollCallReport(report);

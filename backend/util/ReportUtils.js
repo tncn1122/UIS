@@ -1,17 +1,13 @@
 const stringMessage = require('../value/string')
 const moment = require('moment-timezone');
-const { formatDate } = require('./TimeUtils');
 const { TIME_ZONE, DATE_FORMAT, HOUR_FORMAT } = require('../value/time');
-const RollcallReport = require('../models/RollCallReport');
+const RollCallReport = require('../models/RollCallReport');
 const Rollcall = require('../models/Rollcall');
+const { formatDate } = require('./TimeUtils');
 
 
 
-function getDate() {
-  moment.tz.setDefault(TIME_ZONE);
-  const now = moment();
-  return formatDate(now);
-}
+
 
 function genRandomString(seed, length) {
   let res = "";
@@ -70,7 +66,9 @@ function getStatusCheckin(reportInfo) {
 
 
 async function findReport(stringDate, subjectObj){
-  return await RollcallReport.findOne({date: stringDate, subjectId: subjectObj}).populate('subjectId').populate('content')
+  const test = await RollCallReport.find({})
+  console.log(test);
+  return await RollCallReport.findOne({date: stringDate, subjectId: subjectObj}).populate('subjectId').populate('content')
 }
 
 async function generateReportContent(reportId, listStudents){
@@ -88,7 +86,6 @@ async function generateReportContent(reportId, listStudents){
 module.exports = {
   isAbleCreatedReport,
   genReportId,
-  getDate,
   getStatusCheckin,
   isAbleToCheckin,
   findReport,
