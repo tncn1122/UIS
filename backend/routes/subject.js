@@ -226,7 +226,7 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
     const students = await createStudentList(classUpdate.students || []);
     await deleteStudentInSubject(students, savedSubject)
     await createStudentInSubject(students, savedSubject)
-   
+
 
     res.status(201).send(ResponseUtil.makeResponse({
       ...savedSubject,
@@ -334,13 +334,14 @@ async function createStudentInSubject(listStudents, subjectObj) {
 
 
 async function deleteStudentInSubject(listStudents, subjectObj) {
-  console.log(listStudents);
-  await Promise.all(listStudents.map(async (item) => {
-    const subStudent = await SubjectStudent.findOne({studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED }})
-    if(subStudent){
-      await subStudent.remove()
-    }
-  }))
+  // await Promise.all(listStudents.map(async (item) => {
+  //   const subStudent = await SubjectStudent.findOne({ studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED } })
+  //   console.log(item, 'subStudent', subStudent);
+  //   if (subStudent) {
+  //     await subStudent.remove()
+  //   }
+  // }))
+  await SubjectStudent.deleteMany({subjectId: subjectObj})
 }
 
 async function findStudent(userId) {
@@ -429,10 +430,8 @@ async function updateStudentClass(student_state_list, class_id) {
 
 async function updateTeacherClass(teacherObj, classObj) {
   if (teacherObj) {
-    await SubjectTeacher.findOneAndUpdate({ subjectId: classObj }, {teacherId: teacherObj}, async function (error, raw) {
+    await SubjectTeacher.findOneAndUpdate({ subjectId: classObj }, { teacherId: teacherObj }, async function (error, raw) {
       if (!error) {
-        console.log('raw', raw);
-        console.log('classObj', classObj);
         if (raw) {
           await raw.save();
         }
@@ -457,19 +456,19 @@ async function updateTeacherClass(teacherObj, classObj) {
 async function deleteTeacherClass(teacherObj, classObj) {
   const query = {
     subjectId: classObj,
-    status: { $ne: STATUS.DELETED } 
+    status: { $ne: STATUS.DELETED }
   }
-  if(teacherObj){
+  if (teacherObj) {
     query.teacherId = teacherObj
   }
-  const teacherClass = await SubjectTeacher.findOne({...query})
+  const teacherClass = await SubjectTeacher.findOne({ ...query })
   if (teacherClass) {
     await teacherClass.remove()
   }
 }
 
 async function findUser(userId) {
-  if(!userId){
+  if (!userId) {
     return null
   }
   let user = await User.findOne({ userId, status: { $ne: STATUS.DELETED } }).populate({
