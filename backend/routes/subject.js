@@ -334,9 +334,12 @@ async function createStudentInSubject(listStudents, subjectObj) {
 
 
 async function deleteStudentInSubject(listStudents, subjectObj) {
+  console.log(listStudents);
   await Promise.all(listStudents.map(async (item) => {
     const subStudent = await SubjectStudent.findOne({studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED }})
-    await subStudent.remove
+    if(subStudent){
+      await subStudent.remove()
+    }
   }))
 }
 
