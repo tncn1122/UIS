@@ -60,6 +60,14 @@ function MajorPage() {
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listDepartment, setListDepartment] = useState([])
+  const [filterCount, setFilterCount] = useState(0)
+  const [currentFilter, setCurrentFilter] = useState({ status: [STATUS.ACTIVE] })
+
+  const onFilterChange = (pagination, filters, sorter, filteredData) => {
+    console.log('object');
+    setCurrentFilter(filters)
+    setFilterCount(filteredData?.currentDataSource?.length || 0)
+  }
 
   const tableColume = [
     {
@@ -158,6 +166,7 @@ function MajorPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setDataTable(preProcessingData(data))
+          setFilterCount(UI.filterData(data, currentFilter).length)
         }
         setIsFetchingData(false)
       })
@@ -183,7 +192,7 @@ function MajorPage() {
 
   const preProcessingData = (data) => {
     return data.map(item => {
-      const {departmentId} = item
+      const { departmentId } = item
       return {
         ...item,
         departmentName: departmentId?.name || '-',
@@ -218,7 +227,7 @@ function MajorPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Chuyên Ngành"
+              title={`Danh Sách Chuyên Ngành - ${filterCount}`}
               extra={
                 <Space>
                   <Button onClick={fetchData}>
@@ -232,11 +241,13 @@ function MajorPage() {
             >
               <Spin spinning={isFetchingData}>
                 <div className="table-responsive">
-            
+
                   <CustomTable
                     tableColumns={tableColume}
                     data={dataTable}
                     className="ant-border-space"
+                    onChange={onFilterChange}
+
                   />
                 </div>
                 <div className="uploadfile pb-15 shadow-none">

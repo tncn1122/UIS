@@ -19,6 +19,16 @@ const subjectStudentSchema = baseSchema.CreateSchema({
     require: true,
     default: 0
   },
+  testMark: {
+    type: Number,
+    require: true,
+    default: 0
+  },
+  practiceMark: {
+    type: Number,
+    require: true,
+    default: 0
+  },
   serminarMark: {
     type: Number,
     require: true,

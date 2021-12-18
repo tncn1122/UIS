@@ -34,42 +34,42 @@ const rollcallReport = require('../models/RollCallReport');
 
 /**
  * Tạo danh sách điểm danh. Chỉ có tài khoản có quyền Admin hoặc teacher mới thực hiện được chức năng này.
- * @route POST /reports/{class_id}
+ * @route POST /reports/{subject_id}
  * @group Report
- * @param {string} class_id.path.required - id lớp cần điểm danh
+ * @param {string} subject_id.path.required - id lớp cần điểm danh
  * @param {ReportConfig.model} config.body.required - config cho bảng điểm danh
  * @returns {ListReports.model} 200 - Thông tin tài khoản và token ứng với tài khoản đó.
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.post('/:class_id', auth.isReporter, async (req, res) => {
+router.post('/:subject_id', auth.isReporter, async (req, res) => {
   // Create a new report
   try {
-    const classInfo = await findClass(req.params.class_id);
-    if (req.user.id !== classInfo.teacher.id && req.user.role !== 'admin') {
+    const subjectInfo = await findClass(req.params.subject_id);
+    if (req.user.id !== subjectInfo.teacher.id && req.user.role !== 'admin') {
       throw new Error(stringMessage.not_auth);
     }
-    let idx = reportUtil.isAbleCreatedReport(classInfo.schedule);
+    let idx = reportUtil.isAbleCreatedReport(subjectInfo.schedule);
     if (idx == -1) {
       throw new Error(stringMessage.create_report_time_expired);
     }
-    let report = await findReport(reportUtil.getDate(), classInfo.id, classInfo.shift)
+    let report = await findReport(reportUtil.getDate(), subjectInfo.id, subjectInfo.shift)
     if (report) {
       return res.status(200).send(ResponseUtil.makeResponse(report));
     }
     report = {
-      id: reportUtil.genReportId(classInfo.id, classInfo.schedule[idx]),
+      id: reportUtil.genReportId(subjectInfo.id, subjectInfo.schedule[idx]),
       ...req.body,
-      subject: classInfo.id,
-      subjectName: classInfo.name,
-      teacher: classInfo.teacher,
-      content: classInfo.students.map(student => ({
+      subject: subjectInfo.id,
+      subjectName: subjectInfo.name,
+      teacher: subjectInfo.teacher,
+      content: subjectInfo.students.map(student => ({
         user: student,
         status: 'absent'
       })),
-      expired: classInfo.shift === '0' ? '11:30' : '16:30',
-      shift: classInfo.shift
+      expired: subjectInfo.shift === '0' ? '11:30' : '16:30',
+      shift: subjectInfo.shift
     }
     const newReport = new RollCallReport(report);
     await newReport.save();
@@ -85,18 +85,18 @@ router.post('/:class_id', auth.isReporter, async (req, res) => {
 
 /**
  * Lấy tất cả danh sách điểm danh theo môn. Chỉ có tài khoản có quyền Admin hoặc teacher mới thực hiện được chức năng này.
- * @route GET /reports/{class_id}
+ * @route GET /reports/{subject_id}
  * @group Report
- * @param {string} class_id.path.required - id lớp cần điểm danh
+ * @param {string} subject_id.path.required - id lớp cần điểm danh
  * @returns {ListReports.model} 200 - Thông tin tài khoản và token ứng với tài khoản đó.
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.get('/:class_id', auth.isReporter, async (req, res) => {
+router.get('/:subject_id', auth.isReporter, async (req, res) => {
   // Create a new report
   try {
-    const report = await RollCallReport.find({ subject: req.params.class_id }).populate({
+    const report = await RollCallReport.find({ subject: req.params.subject_id }).populate({
       path: 'content',
       populate: {
         path: 'user',
@@ -119,7 +119,7 @@ router.get('/:class_id', auth.isReporter, async (req, res) => {
 
 /**
  * Lấy dữ liệu điểm danh của lớp theo ngày.
- * @route GET /reports/{class_id}/{date}/status
+ * @route GET /reports/{subject_id}/{date}/status
  * @group Report
  * @param {string} id.path.required - id của lớp
  * @param {string} date.path.required - ngày, format dd:mm:yyyy
@@ -128,11 +128,11 @@ router.get('/:class_id', auth.isReporter, async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.get('/:class_id/:date/status', async (req, res) => {
+router.get('/:subject_id/:date/status', async (req, res) => {
   // Create a new report
   try {
 
-    let report = await RollCallReport.findOne({ subject: req.params.class_id, date: req.params.date }).populate({
+    let report = await RollCallReport.findOne({ subject: req.params.subject_id, date: req.params.date }).populate({
       path: 'content',
       populate: {
         path: 'user',
@@ -157,18 +157,18 @@ router.get('/:class_id/:date/status', async (req, res) => {
 
 /**
  * Tải về tổng hợp danh sách điểm danh của một môn.
- * @route GET /reports/{class_id}/download-all
+ * @route GET /reports/{subject_id}/download-all
  * @group Report
- * @param {string} class_id.path.required - id môn học
+ * @param {string} subject_id.path.required - id môn học
  * @returns {Error.model} 200 - File excel chứa report.
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  */
-router.get('/:class_id/download-all', async (req, res) => {
+router.get('/:subject_id/download-all', async (req, res) => {
   // Create a new report
   try {
-    console.log(req.params.class_id);
-    let reportFile = await genExcelReportAll(req.params.class_id);
+    console.log(req.params.subject_id);
+    let reportFile = await genExcelReportAll(req.params.subject_id);
     reportFile.write('Report.xlsx', res);
   } catch (error) {
     console.log(error);
@@ -265,7 +265,7 @@ router.post('/:id/checkin', auth.isStudent, async (req, res) => {
       //console.log(ResponseUtil.makeMessageResponse(stringMessage[status]));
       return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[status]));
     }
-    return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_not_in_class));
+    return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_not_in_subject));
 
 
   } catch (error) {
@@ -310,7 +310,7 @@ router.post('/:id/teachercheckin', auth.isTeacher, async (req, res) => {
       //console.log(ResponseUtil.makeMessageResponse(stringMessage[status]));
       return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[status]));
     }
-    return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_not_in_class));
+    return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_not_in_subject));
 
 
   } catch (error) {
@@ -325,12 +325,12 @@ async function findUser(userId) {
   return await User.findOne({ id: userId });
 }
 
-async function findClass(classId) {
-  const classInfo = await ClassInfo.findOne({ id: classId }).populate('students').populate('monitors').populate('teacher');
-  if (!classInfo) {
-    throw new Error(stringMessage.class_not_found);
+async function findClass(subjectId) {
+  const subjectInfo = await ClassInfo.findOne({ id: subjectId }).populate('students').populate('monitors').populate('teacher');
+  if (!subjectInfo) {
+    throw new Error(stringMessage.subject_not_found);
   }
-  return classInfo;
+  return subjectInfo;
 }
 
 async function findReport(date, subject, shift) {
@@ -346,8 +346,8 @@ async function findReport(date, subject, shift) {
 
 
 
-async function findAllReportBySubject(class_id) {
-  return await RollCallReport.findOne({ subject: class_id }).populate({
+async function findAllReportBySubject(subject_id) {
+  return await RollCallReport.findOne({ subject: subject_id }).populate({
     path: 'content',
     populate: {
       path: 'user',
@@ -356,12 +356,12 @@ async function findAllReportBySubject(class_id) {
   });
 }
 
-async function findClassInfo(classId) {
-  const classInfo = await ClassInfo.findOne({ id: classId }).populate('teacher');
-  if (!classInfo) {
-    throw new Error(stringMessage.class_not_found);
+async function findClassInfo(subjectId) {
+  const subjectInfo = await ClassInfo.findOne({ id: subjectId }).populate('teacher');
+  if (!subjectInfo) {
+    throw new Error(stringMessage.subject_not_found);
   }
-  return classInfo;
+  return subjectInfo;
 }
 
 async function findReportById(reportId) {
@@ -381,13 +381,13 @@ async function findReportById(reportId) {
 async function genExcelReport(reportId) {
   let report = await findReportById(reportId);
   //console.log(report.content[0].user);
-  let classInfo = await findClassInfo(report.subject);
+  let subjectInfo = await findClassInfo(report.subject);
   let workbook = new excel.Workbook();
   let reportSheet = workbook.addWorksheet(report.date);
 
   let title = "Báo Cáo Điểm Danh";
-  let subject = "Môn: " + classInfo.name;
-  let teacher = "Giảng viên: " + classInfo.teacher.name;
+  let subject = "Môn: " + subjectInfo.name;
+  let teacher = "Giảng viên: " + subjectInfo.teacher.name;
   let shift = report.shift == 0 ? 'Sáng' : 'Chiều';
   let date = "Buổi: " + shift + " - Ngày: " + report.date;
 
@@ -456,21 +456,21 @@ async function genExcelReport(reportId) {
   return workbook;
 }
 
-async function genExcelReportAll(classId) {
-  let report = await findAllReportBySubject(classId)
+async function genExcelReportAll(subjectId) {
+  let report = await findAllReportBySubject(subjectId)
   //console.log(report.content[0].user);
-  //console.log(classId);
-  let classInfo = await findClass(classId);
-  console.log(classInfo);
+  //console.log(subjectId);
+  let subjectInfo = await findClass(subjectId);
+  console.log(subjectInfo);
   let workbook = new excel.Workbook();
-  let reportSheet = workbook.addWorksheet(classInfo.id);
+  let reportSheet = workbook.addWorksheet(subjectInfo.id);
 
 
   let title = "Báo Cáo Điểm Danh";
-  let subject = "Môn: " + classInfo.name;
-  let teacher = "Giảng viên: " + classInfo.teacher.name;
-  let shift = classInfo.shift == 0 ? 'Sáng' : 'Chiều';
-  let date = "Buổi: " + shift + " - Ngày bắt đầu: " + (classInfo.schedule[0].split('@')[1]);
+  let subject = "Môn: " + subjectInfo.name;
+  let teacher = "Giảng viên: " + subjectInfo.teacher.name;
+  let shift = subjectInfo.shift == 0 ? 'Sáng' : 'Chiều';
+  let date = "Buổi: " + shift + " - Ngày bắt đầu: " + (subjectInfo.schedule[0].split('@')[1]);
 
   let titleStyle = workbook.createStyle(styleWorkbook.titleStyle);
 
@@ -492,7 +492,7 @@ async function genExcelReportAll(classId) {
   const studentPosition = new Map();
   let pos = 6;
   let total = 0;
-  for (student of classInfo.students) {
+  for (student of subjectInfo.students) {
     console.log(student);
     if (student) {
       studentPosition.set(student.id, pos);
@@ -503,10 +503,10 @@ async function genExcelReportAll(classId) {
     }
   }
   let reportCol = 4;
-  for (const date of classInfo.schedule) {
+  for (const date of subjectInfo.schedule) {
     //console.log(item.user);
     let dateInfo = date.split('@');
-    let report = await findReport(dateInfo[1], classInfo.id, dateInfo[0]);
+    let report = await findReport(dateInfo[1], subjectInfo.id, dateInfo[0]);
     reportSheet.cell(5, reportCol).string(dateInfo[1]).style(rowTitleStyle);
     if (report) {
       // put dữ liệu điểm danh

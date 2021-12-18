@@ -19,24 +19,29 @@ const SubjectModal = (props) => {
     if (modalType === 'edit') {
       form.setFieldsValue({
         subjectId: subjectInfo.subjectId,
-        firstName: subjectInfo.firstName,
-        lastName: subjectInfo.lastName,
-        email: subjectInfo.email,
-        password: 'disabled',
-        role: subjectInfo.role,
-        majorId: subjectInfo.majorId.majorId,
-        birthDate: moment(subjectInfo.birthDate),
-        birthplace: subjectInfo.birthplace,
-        phone: subjectInfo.phone,
-        sex: subjectInfo.sex,
-        idNo: subjectInfo.idNo,
-        address: subjectInfo.address,
+        name: subjectInfo.name,
+        semester1: subjectInfo.semester[0],
+        semester2: moment(subjectInfo.semester.substring(1, 5), 'YYYY'),
+        roomId: subjectInfo.roomId,
+        credits: subjectInfo.credits,
+        shift: subjectInfo.shift,
+        days: subjectInfo.days,
+        startDate: moment(subjectInfo.startDate),
+        dayOfWeek: subjectInfo.dayOfWeek,
+        percentDiligence: subjectInfo.percentDiligence,
+        percentTest: subjectInfo.percentTest,
+        percentPractice: subjectInfo.percentPractice,
+        percentExam: subjectInfo.percentExam,
+        percentSerminar: subjectInfo.percentSerminar,
       })
     }
   }, [visible])
 
   const onSubmit = value => {
     value.startDate = value.startDate.format()
+    const year = value.semester2.format('YYYY')
+    const nextYear = parseInt(year)+1
+    value.semester = `${value.semester1}${year}${nextYear}`
     if (modalType === 'edit') {
       editSubject(value)
     }
@@ -61,7 +66,7 @@ const SubjectModal = (props) => {
   }
 
   const editSubject = (value) => {
-    HttpUtils.put(URLUtils.buildBeURL(`/subjects/${subjectInfo.subjectId}`), value)
+    HttpUtils.put(URLUtils.buildBeURL(`/subjects/${subjectInfo.subjectId}/${subjectInfo.semester}`), value)
       .then(resp => {
         console.log(resp);
         notification.success({
@@ -93,7 +98,7 @@ const SubjectModal = (props) => {
             .validateFields()
             .then(value => {
               onSubmit(value)
-              // form.resetFields()
+              form.resetFields()
             })
             .catch(info => {
               console.log('Validate Failed:', info)
@@ -146,13 +151,32 @@ const SubjectModal = (props) => {
                 <Input />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <Form.Item
                 label="Học Kì"
-                name="semester"
+                name="semester1"
                 rules={ALPHANUMBERIC_VALIDATE}
               >
-                <Input />
+                <Select
+                  size='large'
+                  placeholder="Chọn học kì"
+                  style={{
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                >
+                  <Option value={1}>Học kì 1</Option>
+                  <Option value={2}>Học kì 2</Option>
+                  <Option value={3}>Học kì 3</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Năm Học"
+                name="semester2"
+              >
+                <DatePicker size='large' placeholder={'Chọn năm học'} style={{ width: '100%', borderRadius: '6px' }} picker="year" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -238,8 +262,11 @@ const SubjectModal = (props) => {
                   required: true,
                   message: 'Vui lòng chọn ngày bắt đầu môn học.',
                 }]}
+                style={{
+                  fontSize: '14px'
+                }}
               >
-                <DatePicker size='large' placeholder={'Chọn ngày bắt đầu'} style={{ width: '100%', borderRadius: '6px' }} />
+                <DatePicker size='large' placeholder={'Chọn ngày bắt đầu'} style={{ width: '100%', borderRadius: '6px', fontSize: '14px' }} />
               </Form.Item>
             </Col>
             <Col span={24}>

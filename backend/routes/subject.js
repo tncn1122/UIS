@@ -123,17 +123,19 @@ router.get('/', auth.isAdmin, async (req, res) => {
 
 /**
  * Xóa một lớp khỏi hệ thống dựa vào ID, chỉ có Admin mới thực hiện được chức năng này.
- * @route DELETE /subjects/{id}
+ * @route DELETE /subjects/{id}/{semester}
  * @group Class
  * @param {string} id.path.required ID của lớp cần xóa.
+ * @param {string} semester.path.required Mã học kì của lớp cần xóa.
  * @returns {Error.model} 200 - "Xóa thành công!" nếu thao tác thành công.
  * @returns {Error.model} 500 - Lỗi.
  * @security Bearer
  */
-router.delete('/:id', auth.isAdmin, async (req, res) => {
+router.delete('/:id/:semester', auth.isAdmin, async (req, res) => {
   try {
     let subjectId = req.params.id;
-    const classInfo = await Subject.findOne({ subjectId, status: { $ne: STATUS.DELETED } }).populate('roomId');
+    let semester = req.params.semester;
+    const classInfo = await Subject.findOne({ subjectId, semester, status: { $ne: STATUS.DELETED } }).populate('roomId');
     const students = await getStudentInSubject(classInfo)
     const teacher = await getTeacherInSubject(classInfo)
     if (classInfo) {
@@ -168,21 +170,23 @@ router.delete('/:id', auth.isAdmin, async (req, res) => {
 
 /**
  * Sửa một lớp dựa vào ID, chỉ có Admin mới thực hiện được chức năng này.
- * @route PUT /subjects/{id}
+ * @route PUT /subjects/{id}/{semester}
  * @group Class
- * @param {string} id.path.required Body của lớp cần sửa.
+ * @param {string} id.path.required Id của lớp cần sửa.
+ * @param {string} semester.path.required Mã học kì của lớp cần sửa.
  * @param {Subject.model} class.body.required Body của lớp cần sửa.
  * @returns {Subject.model} 200 - Thông tin lớp nếu thao tác thành công.
  * @returns {Error.model} 500 - Lỗi.
  * @security Bearer
  */
-router.put('/:id', auth.isAdmin, async (req, res) => {
+router.put('/:id/:semester', auth.isAdmin, async (req, res) => {
   try {
     let subjectId = req.params.id; //old
+    let semester = req.params.semester; //old
     let classUpdate = req.body;  //new
 
 
-    const classInfo = await classUtil.findClass(subjectId);
+    const classInfo = await classUtil.findClass(subjectId, semester);
     if (!classInfo) {
       throw new Error(subject_not_found)
     }
@@ -242,17 +246,19 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
 
 /**
  * Lấy thông tin của một lớp, user đã đăng nhập mới thực hiện được chức năng này.
- * @route GET /subjects/{id}
+ * @route GET /subjects/{id}/{semester}
  * @group Class
  * @param {string} id.path.required ID của lớp cần lấy thông tin.
+ * @param {string} semester.path.required Mã học kì của lớp cần lấy thông tin.
  * @returns {Class.model} 200 - Thông tin lớp nếu thao tác thành công.
  * @returns {Error.model} 500 - Lỗi.
  * @security Bearer
  */
-router.get('/:id', auth.isUser, async (req, res) => {
+router.get('/:id/:semester', auth.isUser, async (req, res) => {
   try {
     let subjectId = req.params.id;
-    let classInfo = await findSubject(subjectId);
+    let semester = req.params.semester;
+    let classInfo = await findSubject(subjectId, semester);
     if (classInfo) {
       classInfo = classInfo.toObject()
       const students = await getStudentInSubject(classInfo)

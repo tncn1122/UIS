@@ -8,6 +8,7 @@ const stringMessage = require('../value/string');
 const QR = require('../util/QR')
 const router = express.Router()
 const userUtil = require('../util/UserUtils');
+const ClassUtil = require('../util/ClassUtils');
 const Major = require('../models/Major');
 const { major_not_found, user_exist } = require('../value/string');
 const { STATUS } = require('../value/model');
@@ -101,12 +102,12 @@ router.post('/', auth.isAdmin, async (req, res) => {
  */
 router.get('/:id', auth.isUser, async (req, res) => {
   try {
-    let userResponse = await findUser(req.params.id)
-    if (!userResponse) {
+    let userObj = await findUser(req.params.id)
+    if (!userObj) {
       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
     }
     else {
-      userResponse = userResponse.toObject()
+      let userResponse = userObj.toObject()
       const { majorId } = userResponse
       const departmentId = majorId?.departmentId || {}
       userResponse.departmentName = departmentId?.name || '-'
@@ -115,6 +116,8 @@ router.get('/:id', auth.isUser, async (req, res) => {
       if ((req.user.role !== "admin") && req.user.userId !== req.params.id) {
         userResponse = await userUtil.hideUserInfo(userResponse);
       }
+
+      userResponse.marks = await ClassUtil.getMarksOfStudent(userObj)
       res.status(200).send(ResponseUtil.makeResponse(userResponse));
     }
   } catch (error) {

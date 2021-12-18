@@ -31,6 +31,19 @@ export default class UI {
 
   }
 
+  static filterData = (data, filter) => {
+    return data.filter((item) => {
+      for(const [key, value] of Object.entries(filter)){
+        if(value){
+          if(!value.includes(item[key])){
+            return false
+          }
+        }
+      }
+      return true
+    })
+  }
+
   static renderRole = (role) => {
     let renderedRole = ''
     if(role === ENUM_ROLE[0]){

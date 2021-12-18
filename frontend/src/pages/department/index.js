@@ -58,7 +58,13 @@ function DepartmentPage() {
   const [departmentModalType, setDepartmentModalVisibleType] = useState(false)
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
+  const [filterCount, setFilterCount] = useState(0)
+  const [currentFilter, setCurrentFilter] = useState({status: [STATUS.ACTIVE]})
 
+  const onFilterChange = (pagination, filters, sorter, filteredData) => {
+    setCurrentFilter(filters)
+    setFilterCount(filteredData?.currentDataSource?.length || 0)
+  }
 
   const tableColume = [
     {
@@ -155,6 +161,7 @@ function DepartmentPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setDataTable(data)
+          setFilterCount(UI.filterData(data, currentFilter).length)
         }
         setIsFetchingData(false)
       })
@@ -175,7 +182,6 @@ function DepartmentPage() {
   }
 
   const onClickEditButton = (data) => {
-    console.log(data);
     setDepartmentModalVisibleType('edit')
     setCurrentData(data)
     setDepartmentModalVisible(true)
@@ -190,7 +196,7 @@ function DepartmentPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Khoa"
+              title={`Danh Sách Khoa - ${filterCount}`}
               extra={
                 <Space>
                   <Button onClick={fetchData}>
@@ -208,6 +214,7 @@ function DepartmentPage() {
                     tableColumns={tableColume}
                     data={dataTable}
                     className="ant-border-space"
+                    onChange={onFilterChange}
                   />
                 </div>
                 <div className="uploadfile pb-15 shadow-none">

@@ -4,7 +4,96 @@ const moment = require('moment-timezone');
 const Subject = require('../models/Subject');
 const { STATUS } = require('../value/model');
 const { startDate_wrong, dayOfWeek_wrong } = require('../value/string');
+const SubjectStudent = require('../models/SubjectStudent');
 
+
+
+const getMarksOfStudent = async (userObj) => {
+  const listScores = await SubjectStudent.find({ studentId: userObj, "subjectId.status": { $ne: STATUS.DELETED } }).populate('subjectId')
+  const result = listScores.map((item) => {
+    const markData = preProcessingMark(item)
+
+    return markData
+  })
+
+  return result
+}
+
+const preProcessingMark = (subStudentObj) => {
+  const {
+    subjectId,
+    diligenceMark,
+    testMark,
+    practiceMark,
+    serminarMark,
+    examMark1,
+    examMark2,
+    examMark3,
+  } = subStudentObj
+
+  const {
+    name,
+    semester,
+    credits,
+    percentDiligence,
+    percentTest,
+    percentPractice,
+    percentSerminar,
+    percentExam,
+  } = subjectId
+
+  const maxExam = Math.max(examMark1, examMark2, examMark3)
+  const finalMark10 = (percentDiligence * diligenceMark + percentTest * testMark + percentPractice * practiceMark + percentSerminar * serminarMark + percentExam * maxExam) / 100
+  const finalMarkChar = toCharMark(finalMark10)
+  const finalMark4 = to4Mark[finalMarkChar]
+  return {
+    semester,
+    subjectId: subjectId.subjectId,
+    name,
+    credits,
+    percentDiligence,
+    percentTest,
+    percentPractice,
+    percentSerminar,
+    percentExam,
+    diligenceMark,
+    testMark,
+    practiceMark,
+    serminarMark,
+    examMark1,
+    examMark2,
+    examMark3,
+    finalMark10,
+    finalMarkChar,
+    finalMark4
+  }
+
+
+}
+
+const toCharMark = (mark) => {
+  if (mark >= 9) return "A+"
+  if (mark >= 8.5) return "A"
+  if (mark >= 8) return "B+"
+  if (mark >= 7) return "B"
+  if (mark >= 6.5) return "C+"
+  if (mark >= 5.5) return "C"
+  if (mark >= 5) return "D+"
+  if (mark >= 4) return "D"
+  return "F"
+}
+
+const to4Mark = {
+  'A+': 4,
+  'A': 3.7,
+  'B+': 3.5,
+  'B': 3,
+  'C+': 2.5,
+  'C': 2,
+  'D+': 1.5,
+  'D': 1,
+  'F': 0,
+}
 
 const week = {
   '2': 'Monday',
@@ -15,8 +104,8 @@ const week = {
   '7': 'Saturday',
 }
 
-async function findClass(classId) {
-  const classInfo = await Subject.findOne({ subjectId: classId, status: { $ne: STATUS.DELETED } }).populate('roomId');
+async function findClass(classId, semester) {
+  const classInfo = await Subject.findOne({ subjectId: classId, semester, status: { $ne: STATUS.DELETED } }).populate('roomId');
   return classInfo;
 }
 
@@ -57,17 +146,17 @@ function isChangeExpired(startDate) {
 function genSchedule(startDate, shift, days, dayOfWeek) {
   let schedule = [];
   console.log(startDate, shift, days, dayOfWeek);
-  if(!startDate || !dayOfWeek){
+  if (!startDate || !dayOfWeek) {
     return []
   }
   let day = moment(startDate, 'DD-MM-YYYY');
   let flag = 0
-  if(!week.hasOwnProperty(dayOfWeek)){
+  if (!week.hasOwnProperty(dayOfWeek)) {
     throw new Error(dayOfWeek_wrong)
   }
   while (day.format('dddd') !== week[dayOfWeek]) {
-    flag = flag+1
-    if(flag > 10){
+    flag = flag + 1
+    if (flag > 10) {
       throw new Error(startDate_wrong)
     }
     day.add(1, 'days');
@@ -123,5 +212,6 @@ module.exports = {
   genSchedule,
   isChangeExpired,
   validateDate,
-  validateDays
+  validateDays,
+  getMarksOfStudent
 }

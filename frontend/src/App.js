@@ -17,6 +17,7 @@ import SubjectPage from "./pages/subject";
 import StudentPage from "./pages/student";
 import TeacherPage from "./pages/teacher";
 import Profile from "./pages/profile";
+import SubjectDetail from "./pages/subject/detail";
 
 
 
@@ -40,6 +41,7 @@ function App(props) {
           <Route exact path="/billing" component={Billing} />
           <Route exact path="/rtl" component={Rtl} />
           <Route exact path="/user/:id" component={Profile} />
+          <Route exact path="/subject/:id" component={SubjectDetail} />
         </Main>
       </Switch>
     </div>

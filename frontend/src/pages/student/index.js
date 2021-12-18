@@ -62,6 +62,13 @@ function StudentPage() {
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listDepartments, setListDepartments] = useState([])
   const [listMajors, setListMajors] = useState([])
+  const [filterCount, setFilterCount] = useState(0)
+  const [currentFilter, setCurrentFilter] = useState({status: [STATUS.ACTIVE]})
+
+  const onFilterChange = (pagination, filters, sorter, filteredData) => {
+    setCurrentFilter(filters)
+    setFilterCount(filteredData?.currentDataSource?.length || 0)
+  }
   let history = useHistory()
 
   const tableColume = [
@@ -148,14 +155,14 @@ function StudentPage() {
 
   const dropdownOptions = (record) => (
     <Menu disabled={record.status === STATUS.DELETED}>
-      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => {history.push(`/user/${record.userId}`)}}>
+      <Menu.Item key="detail" icon={<UserOutlined />} onClick={() => {history.push(`/user/${record.userId}`)}}>
         Trang Cá Nhân
       </Menu.Item>
-      <Menu.Item key="1" icon={<EditOutlined />}  onClick={(e) => { onClickEditButton(record) }}>
+      <Menu.Item key="edit" icon={<EditOutlined />}  onClick={(e) => { onClickEditButton(record) }}>
         {/* <Button type="text" disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }} style={{boxShadow: 'none'}}>Sửa</Button> */}
         Sửa
       </Menu.Item>
-      <Menu.Item key="2" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
+      <Menu.Item key="delete" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
         Xóa
       </Menu.Item>
     </Menu>
@@ -193,6 +200,8 @@ function StudentPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setDataTable(preProcessingData(data))
+          setFilterCount(UI.filterData(data, currentFilter).length)
+
         }
         setIsFetchingData(false)
       })
@@ -266,7 +275,8 @@ function StudentPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Sinh Viên"
+              title={`Danh Sách Sinh Viên - ${filterCount}`}
+
               extra={
                 <Space>
                   <Button onClick={fetchData}>
@@ -284,6 +294,7 @@ function StudentPage() {
                     tableColumns={tableColume}
                     data={dataTable}
                     className="ant-border-space"
+                    onChange={onFilterChange}
                   />
                 </div>
                 <div className="uploadfile pb-15 shadow-none">

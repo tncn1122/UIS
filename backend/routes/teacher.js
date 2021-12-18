@@ -93,24 +93,24 @@ router.get('/:id', auth.isUser, async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.get('/:id/class', auth.isUser, async (req, res) => {
-  try {
-    let userResponse = await User.findOne({ id: req.params.id, role: 'teacher' })
-    if (!userResponse) {
-      res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
-    }
-    else {
-      if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
-        return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.not_auth));
-      }
+// router.get('/:id/class', auth.isUser, async (req, res) => {
+//   try {
+//     let userResponse = await User.findOne({ id: req.params.id, role: 'teacher' })
+//     if (!userResponse) {
+//       res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.user_not_found))
+//     }
+//     else {
+//       if ((req.user.role !== "admin") && req.user.id !== req.params.id) {
+//         return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.not_auth));
+//       }
 
-      res.status(200).send(ResponseUtil.makeResponse(await createClassList(userResponse.classes)));
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(400).send(ResponseUtil.makeMessageResponse(error.message))
-  }
-})
+//       res.status(200).send(ResponseUtil.makeResponse(await createClassList(userResponse.classes)));
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).send(ResponseUtil.makeMessageResponse(error.message))
+//   }
+// })
 
 
 async function createClassList(class_id_list) {

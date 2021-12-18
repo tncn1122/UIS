@@ -62,6 +62,14 @@ function TeacherPage() {
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listDepartment, setListDepartment] = useState([])
   const [listMajors, setListMajors] = useState([])
+  const [filterCount, setFilterCount] = useState(0)
+  const [currentFilter, setCurrentFilter] = useState({ status: [STATUS.ACTIVE] })
+
+  const onFilterChange = (pagination, filters, sorter, filteredData) => {
+    setCurrentFilter(filters)
+    setFilterCount(filteredData?.currentDataSource?.length || 0)
+  }
+
   let history = useHistory()
 
 
@@ -148,14 +156,14 @@ function TeacherPage() {
 
   const dropdownOptions = (record) => (
     <Menu disabled={record.status === STATUS.DELETED}>
-      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => {history.push(`/user/${record.userId}`)}}>
+      <Menu.Item key="detail" icon={<UserOutlined />} onClick={() => { history.push(`/user/${record.userId}`) }}>
         Trang Cá Nhân
       </Menu.Item>
-      <Menu.Item key="1" icon={<EditOutlined />}  onClick={(e) => { onClickEditButton(record) }}>
+      <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { onClickEditButton(record) }}>
         {/* <Button type="text" disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }} style={{boxShadow: 'none'}}>Sửa</Button> */}
         Sửa
       </Menu.Item>
-      <Menu.Item key="2" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
+      <Menu.Item key="delete" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
         Xóa
       </Menu.Item>
     </Menu>
@@ -193,6 +201,7 @@ function TeacherPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setDataTable(preProcessingData(data))
+          setFilterCount(UI.filterData(data, currentFilter).length)
         }
         setIsFetchingData(false)
       })
@@ -232,7 +241,7 @@ function TeacherPage() {
 
   const preProcessingData = (data) => {
     return data.map(item => {
-      const {majorId: {departmentId}} = item
+      const { majorId: { departmentId } } = item
       return ({
         ...item,
         departmentName: departmentId?.name || '-',
@@ -267,7 +276,8 @@ function TeacherPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Giảng Viên"
+              title={`Danh Sách Giảng Viên - ${filterCount}`}
+
               extra={
                 <Space>
                   <Button onClick={fetchData}>
@@ -285,6 +295,7 @@ function TeacherPage() {
                     tableColumns={tableColume}
                     data={dataTable}
                     className="ant-border-space"
+                    onChange={onFilterChange}
                   />
                 </div>
                 <div className="uploadfile pb-15 shadow-none">

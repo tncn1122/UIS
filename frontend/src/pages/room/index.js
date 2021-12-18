@@ -58,7 +58,13 @@ function RoomPage() {
   const [roomModalType, setRoomModalVisibleType] = useState(false)
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
+  const [filterCount, setFilterCount] = useState(0)
+  const [currentFilter, setCurrentFilter] = useState({status: [STATUS.ACTIVE]})
 
+  const onFilterChange = (pagination, filters, sorter, filteredData) => {
+    setCurrentFilter(filters)
+    setFilterCount(filteredData?.currentDataSource?.length || 0)
+  }
 
   const tableColume = [
     {
@@ -149,6 +155,7 @@ function RoomPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setDataTable(data)
+          setFilterCount(UI.filterData(data, currentFilter).length)
         }
         setIsFetchingData(false)
       })
@@ -184,7 +191,8 @@ function RoomPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Phòng Học"
+              title={`Danh Sách Phòng Học - ${filterCount}`}
+
               extra={
                 <Space>
                   <Button onClick={fetchData}>
@@ -202,6 +210,8 @@ function RoomPage() {
                     tableColumns={tableColume}
                     data={dataTable}
                     className="ant-border-space"
+                    onChange={onFilterChange}
+
                   />
                 </div>
                 <div className="uploadfile pb-15 shadow-none">

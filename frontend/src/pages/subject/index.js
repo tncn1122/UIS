@@ -61,6 +61,14 @@ function SubjectPage() {
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listRooms, setListRooms] = useState([])
+  const [filterCount, setFilterCount] = useState(0)
+  const [currentFilter, setCurrentFilter] = useState({ status: [STATUS.ACTIVE] })
+
+  const onFilterChange = (pagination, filters, sorter, filteredData) => {
+    console.log('here');
+    setCurrentFilter(filters)
+    setFilterCount(filteredData?.currentDataSource?.length || 0)
+  }
   let history = useHistory()
 
 
@@ -88,6 +96,11 @@ function SubjectPage() {
       title: "PHÒNG",
       dataIndex: "roomId",
       key: "roomId",
+    },
+    {
+      title: "GIẢNG VIÊN",
+      dataIndex: "teacherName",
+      key: "teacherName",
     },
     {
       title: "SỐ LƯỢNG SINH VIÊN",
@@ -152,14 +165,14 @@ function SubjectPage() {
 
   const dropdownOptions = (record) => (
     <Menu disabled={record.status === STATUS.DELETED}>
-      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => { history.push(`/subject/${record.subjectId}`) }}>
-        Trang Cá Nhân
+      <Menu.Item key="detail" icon={<UserOutlined />} onClick={() => { history.push(`/subject/${record.subjectId}`) }}>
+        Chi Tiết
       </Menu.Item>
-      <Menu.Item key="1" icon={<EditOutlined />} onClick={(e) => { onClickEditButton(record) }}>
+      <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { onClickEditButton(record) }}>
         {/* <Button type="text" disabled={record.status === STATUS.DELETED} onClick={(e) => { onClickEditButton(record) }} style={{boxShadow: 'none'}}>Sửa</Button> */}
         Sửa
       </Menu.Item>
-      <Menu.Item key="2" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
+      <Menu.Item key="delete" icon={<DeleteOutlined />} onClick={(e) => { showConfirm(record) }}>
         Xóa
       </Menu.Item>
     </Menu>
@@ -175,7 +188,7 @@ function SubjectPage() {
       icon: <ExclamationCircleOutlined />,
       content: `${value.name}`,
       onOk() {
-        HttpUtils.delete(URLUtils.buildBeURL(`/subjects/${value.subjectId}`))
+        HttpUtils.delete(URLUtils.buildBeURL(`/subjects/${value.subjectId}/${value.semester}`))
           .then(resp => {
             notification.success({
               message: 'Xóa thành công',
@@ -197,6 +210,8 @@ function SubjectPage() {
         const { data } = resp
         if (data && data.length > 0) {
           setDataTable(preProcessingData(data))
+          setFilterCount(UI.filterData(data, currentFilter).length)
+
         }
         setIsFetchingData(false)
       })
@@ -204,7 +219,7 @@ function SubjectPage() {
         ErrorHandler.handle(err)
         setIsFetchingData(false)
       })
-      fetchRooms()
+    fetchRooms()
   }
 
   const fetchRooms = () => {
@@ -235,12 +250,12 @@ function SubjectPage() {
 
   const preProcessingData = (data) => {
     return data.map(item => {
-      const { roomId } = item
-      console.log(roomId);
+      const { roomId, teacher } = item
       return ({
         ...item,
-        studentCount: roomId.slots || '-',
+        studentCount: `${item.students.length}/${roomId.slots}`,
         roomId: roomId.roomId || '-',
+        teacherName: teacher ? `${teacher.lastName} ${teacher.firstName}` : '-'
       })
     })
   }
@@ -271,7 +286,7 @@ function SubjectPage() {
             <Card
               bordered={false}
               className="criclebox tablespace mb-24"
-              title="Danh Sách Môn Học"
+              title={`Danh Sách Môn Học - ${filterCount}`}
               extra={
                 <Space>
                   <Button onClick={fetchData}>
@@ -289,6 +304,8 @@ function SubjectPage() {
                     tableColumns={tableColume}
                     data={dataTable}
                     className="ant-border-space"
+                    onChange={onFilterChange}
+
                   />
                 </div>
                 <div className="uploadfile pb-15 shadow-none">
@@ -311,13 +328,9 @@ function SubjectPage() {
         visible={subjectModalVisible}
         onCancel={onCancelSubjectModal}
         modalType={subjectModalType}
-        subjectId={currentData.subjectId}
-        name={currentData.name}
+        subjectInfo={currentData}
         fetchData={fetchData}
         listRooms={listRooms}
-      />
-      <Modal
-
       />
     </>
   );
