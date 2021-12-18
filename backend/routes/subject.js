@@ -59,8 +59,8 @@ router.post('/', auth.isAdmin, async (req, res) => {
     const savedSubject = await newClass.save();
 
     let teacher = null
-    if (req.body.hasOwnProperty('teacherId')) {
-      teacher = await createTeacherInSubject(req.body.teacherId, savedSubject)
+    if (req.body.hasOwnProperty('teacher')) {
+      teacher = await createTeacherInSubject(req.body.teacher, savedSubject)
     }
 
     let students = [];
@@ -226,7 +226,7 @@ router.put('/:id', auth.isAdmin, async (req, res) => {
     const students = await createStudentList(classUpdate.students || []);
     await deleteStudentInSubject(students, savedSubject)
     await createStudentInSubject(students, savedSubject)
-   
+
 
     res.status(201).send(ResponseUtil.makeResponse({
       ...savedSubject,
@@ -336,8 +336,8 @@ async function createStudentInSubject(listStudents, subjectObj) {
 async function deleteStudentInSubject(listStudents, subjectObj) {
   console.log(listStudents);
   await Promise.all(listStudents.map(async (item) => {
-    const subStudent = await SubjectStudent.findOne({studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED }})
-    if(subStudent){
+    const subStudent = await SubjectStudent.findOne({ studentId: item, subjectId: subjectObj, status: { $ne: STATUS.DELETED } })
+    if (subStudent) {
       await subStudent.remove()
     }
   }))
@@ -435,11 +435,8 @@ async function updateTeacherClass(teacherObj, classObj) {
           await raw.save();
         }
         else {
-          const subTeacher = new SubjectTeacher({
-            subjectId: classObj,
-            teacherId: teacherObj
-          })
-          await subTeacher.save()
+          throw new Error(ResponseUtil.makeMessageResponse(subject_not_found))
+
         }
       }
       else {
@@ -460,6 +457,9 @@ async function deleteTeacherClass(teacherObj, classObj) {
 }
 
 async function findUser(userId) {
+  if (!userId) {
+    return null
+  }
   let user = await User.findOne({ userId, status: { $ne: STATUS.DELETED } }).populate({
     path: 'majorId',
     populate: {
