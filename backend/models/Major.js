@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { STATUS } = require('../value/model');
 const { major_exist } = require('../value/string');
 const baseSchema = require('./BaseSchema')
 

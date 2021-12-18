@@ -28,8 +28,6 @@ function isAbleCreatedReport(dateList) {
     const shift = dateList[0].split('@')[0];
     const now = moment();
     const nowMM = shift + '@' + formatDate(moment(now, DATE_FORMAT));
-    // console.log(nowMM);
-    // console.log(dateList);
     return dateList.indexOf(nowMM);
   }
   else {
@@ -76,10 +74,13 @@ async function findReport(stringDate, subjectObj) {
     path: 'content',
     populate: {
       path: 'studentId',
-      model: 'User',
       populate: {
         path: 'majorId',
         model: 'Major',
+        populate: {
+          path: 'departmentId',
+          model: 'Department',
+        }
       }
     }
   });
