@@ -50,7 +50,7 @@ const reportschema = baseSchema.CreateSchema({
     require: true
   },
   checkinLimitTime: {
-    type: Date,
+    type: String,
     require: true
   },
   allowLate: {
