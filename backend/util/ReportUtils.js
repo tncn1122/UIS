@@ -41,14 +41,16 @@ function isAbleToCheckin(day) {
   const dateMM = moment(DATE_FORMAT);
   return moment().isSame(dateMM, day);
 }
+
+
 function getStatusCheckin(reportInfo) {
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
   const now = moment();
   const limitTime = moment(reportInfo.checkinLimitTime, HOUR_FORMAT);
-  const expiredTime = moment(reportInfo.expired, HOUR_FORMAT);
+  let expiredTime = moment(reportInfo.expired, HOUR_FORMAT);
 
   if (!reportInfo.allowLate) {
-    expiredtime = limitTime;
+    expiredTime = limitTime;
   }
   if (now.isBefore(limitTime)) {
     return "ontime";
@@ -62,6 +64,19 @@ function getStatusCheckin(reportInfo) {
 
 }
 
+async function findRollcall(rollcallReportId, studentObj) {
+  return await Rollcall.findOne({rollcallReportId, studentId: studentObj}).populate({
+    path: 'studentId',
+    populate: {
+      path: 'majorId',
+      model: 'Major',
+      populate: {
+        path: 'departmentId',
+        model: 'Department',
+      }
+    }
+  })
+}
 
 async function findReport(stringDate, subjectObj) {
   return await RollCallReport.findOne({ date: stringDate, subjectId: subjectObj }).populate({
@@ -104,5 +119,6 @@ module.exports = {
   getStatusCheckin,
   isAbleToCheckin,
   findReport,
-  generateReportContent
+  generateReportContent,
+  findRollcall
 }

@@ -16,6 +16,7 @@ const excel = require('excel4node');
 const rollcallReport = require('../models/RollCallReport');
 const { findClass, getTeacherOfClass, getStudentInSubject } = require('../util/ClassUtils');
 const { getDate } = require('../util/TimeUtils');
+const Rollcall = require('../models/Rollcall');
 
 
 
@@ -239,7 +240,7 @@ router.get('/:id/status', async (req, res) => {
 
 /**
  * Điểm danh. Chỉ có tài khoản sinh viên mới thực hiện được chức năng này.
- * @route POST /reports/{id}/checkin
+ * @route PUT /reports/{id}/checkin
  * @group Report
  * @param {string} id.path.required - id bảng điểm danh
  * @returns {Error.model} 200 - trạng thái điểm danh: ontime, late hoặc absent.
@@ -247,30 +248,22 @@ router.get('/:id/status', async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.post('/:id/checkin', auth.isStudent, async (req, res) => {
+router.put('/:id/checkin', auth.isStudent, async (req, res) => {
   // Create a new report
   try {
     let student = req.user;
     let report = await findReportById(req.params.id);
     //console.log(report);
-    let status = reportUtil.getStatusCheckin(report);
+    let rollcallStatus = reportUtil.getStatusCheckin(report);
     // if(!reportUtil.isAbleToCheckin(report.date)){
     //     return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.user_cant_checkin_bc_date));
     // }
-    let check = 0;
-    for (const item of report.content) {
-      if (item.user && item.user.id === student.id) {
-        if (item.status !== 'absent') {
-          return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_checked));
-        }
-        item.status = status;
-        check = 1;
-      }
-    }
-    if (check) {
-      await report.save();
+    const rollCall = await reportUtil.findRollcall(report.rollcallReportId, student)
+    if (rollCall) {
+      await Rollcall.findOneAndUpdate({rollcallReportId: rollCall.rollcallReportId}, {rollcallStatus})
+      
       //console.log(ResponseUtil.makeMessageResponse(stringMessage[status]));
-      return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[status]));
+      return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[rollcallStatus]));
     }
     return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_not_in_subject));
 
@@ -292,32 +285,24 @@ router.post('/:id/checkin', auth.isStudent, async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.post('/:id/teachercheckin', auth.isTeacher, async (req, res) => {
+router.put('/:id/teachercheckin', auth.isTeacher, async (req, res) => {
   // Create a new report
   try {
     let studentId = req.user.body.studentId;
     let report = await findReportById(req.params.id);
-    let student = await findUser(studentId);
+    let student = await userUtil.findUser(studentId)
     if (!student) {
       throw new Error(stringMessage.user_not_found);
     }
-    let status = reportUtil.getStatusCheckin(report);
-    let check = 0;
-    for (const item of report.content) {
-      if (item.user && item.user.id === student.id) {
-        if (item.status !== 'absent') {
-          return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_checked));
-        }
-        item.status = status;
-        check = 1;
-      }
-    }
-    if (check) {
-      await report.save();
+    let rollcallStatus = reportUtil.getStatusCheckin(report);
+    if (rollCall) {
+      await Rollcall.findOneAndUpdate({rollcallReportId: rollCall.rollcallReportId}, {rollcallStatus})
+      
       //console.log(ResponseUtil.makeMessageResponse(stringMessage[status]));
-      return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[status]));
+      return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[rollcallStatus]));
     }
     return res.status(400).send(ResponseUtil.makeMessageResponse(stringMessage.student_not_in_subject));
+
 
 
   } catch (error) {
@@ -327,10 +312,6 @@ router.post('/:id/teachercheckin', auth.isTeacher, async (req, res) => {
 })
 
 
-
-async function findUser(userId) {
-  return await User.findOne({ id: userId });
-}
 
 // async function findClass(subjectId) {
 //   const subjectInfo = await ClassInfo.findOne({ id: subjectId }).populate('students').populate('monitors').populate('teacher');

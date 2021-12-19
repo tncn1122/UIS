@@ -90,7 +90,7 @@ const isStudent = async (req, res, next) => {
     req.token = token
     next()
   } catch (error) {
-    //console.log(stringMessage.not_auth);
+    console.log(error);
     res.status(401).send({ message: stringMessage.not_auth })
   }
 
