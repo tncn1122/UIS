@@ -47,7 +47,7 @@ const subjectSchema = baseSchema.CreateSchema({
     type: String,
     required: true,
     enum: {
-      values: ['2', '3', '4', '5', '6', '7'],
+      values: ['1', '2', '3', '4', '5', '6', '7'],
       message: "Ngày không đúng!"
     },
     default: 0,

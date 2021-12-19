@@ -5,7 +5,7 @@ import { SearchOutlined } from '@ant-design/icons'
 import Highlighter from 'react-highlight-words';
 
 function CustomTable(props) {
-  const { data, pagination, pageSize, size, loading, bordered, tableColumns,
+  const { data, pagination, showPagination, pageSize, size, loading, bordered, tableColumns,
     scroll, rowSelection, onSelectChange, onChange, customPagination } = props
   let { searchInput } = props
   const [columns, setcolumns] = useState(tableColumns || [])
@@ -107,7 +107,7 @@ function CustomTable(props) {
 
     <Table
       dataSource={data}
-      pagination={customPagination ? { ...defaultPagination, ...customPagination } : defaultPagination}
+      pagination={showPagination && (customPagination ? { ...defaultPagination, ...customPagination } : defaultPagination)}
       size={size}
       loading={{ spinning: loading, tip: 'Loading data...' }}
       bordered={bordered}
@@ -123,6 +123,7 @@ CustomTable.propTypes = {
   data: PropTypes.array.isRequired,
   tableColumns: PropTypes.array.isRequired,
   pagination: PropTypes.string,
+  showPagination: PropTypes.bool,
   pageSize: PropTypes.number,
   size: PropTypes.string, /* middle, small */
   loading: PropTypes.bool,
@@ -133,6 +134,7 @@ CustomTable.propTypes = {
 }
 
 CustomTable.defaultProps = {
+  showPagination: true,
   pagination: 'bottomRight',
   pageSize: 10,
   size: 'default',

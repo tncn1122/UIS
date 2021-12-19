@@ -126,14 +126,14 @@ router.get('/:subjectId/:semester/all', auth.isReporter, async (req, res) => {
 
 /**
  * Lấy dữ liệu điểm danh của lớp theo ngày.
- * @route GET /reports/{subject_id}/{date}/status
+ * @route GET /reports/{subjectId}/{semester}/{date}/status
  * @group Report
- * @param {string} id.path.required - id của lớp
+ * @param {string} subjectId.path.required - id của lớp
+ * @param {string} semester.path.required - ngày, format dd:mm:yyyy
  * @param {string} date.path.required - ngày, format dd:mm:yyyy
  * @returns {ListReports.model} 200 - Report
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
- * @security Bearer
  */
 router.get('/:subject_id/:semester/:date/status', async (req, res) => {
   // Create a new report

@@ -169,7 +169,7 @@ function SubjectDetail(props) {
             className="header-solid h-full  ant-list-yes"
             title={<h6 className="font-semibold m-0">Lịch sử điểm danh</h6>}
             extra={
-              <Button type="link" className="darkbtn">
+              <Button className="darkbtn" href={`/reports/${subjectId}/${semester}/status`}>
                 Điểm danh
               </Button>
             }

@@ -1,5 +1,5 @@
 import { Tag } from 'antd';
-import { ENUM_ROLE, STATUS } from '../value/model';
+import { ENUM_ROLE, ROLLCALL_STATUS, STATUS } from '../value/model';
 import { FULL_DATE_FORMAT } from '../value/time';
 const moment = require('moment-timezone');
 
@@ -8,12 +8,16 @@ const moment = require('moment-timezone');
 export default class UI {
   static renderStatusTag = (status, text) => {
     let tagColor = 'blue'
-    if(status === STATUS.ACTIVE){
+    if(status === STATUS.ACTIVE || status === ROLLCALL_STATUS.ONTIME){
       tagColor = 'green'
     }
   
-    if(status === STATUS.DELETED){
+    if(status === STATUS.DELETED || status === ROLLCALL_STATUS.ABSENT){
       tagColor = 'red'
+    }
+
+    if(status === ROLLCALL_STATUS.LATE){
+      tagColor = 'orange'
     }
   
   

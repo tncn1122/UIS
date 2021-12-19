@@ -97,6 +97,7 @@ const to4Mark = {
 }
 
 const week = {
+  '1' : 'Sunday',
   '2': 'Monday',
   '3': 'Tuesday',
   '4': 'Wednesday',
