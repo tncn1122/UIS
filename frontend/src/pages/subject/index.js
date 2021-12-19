@@ -61,6 +61,8 @@ function SubjectPage() {
   const [currentData, setCurrentData] = useState({})
   const [isFetchingData, setIsFetchingData] = useState(false)
   const [listRooms, setListRooms] = useState([])
+  const [listTeachers, setListTeachers] = useState([])
+  const [listStudents, setListStudents] = useState([])
   const [filterCount, setFilterCount] = useState(0)
   const [currentFilter, setCurrentFilter] = useState({ status: [STATUS.ACTIVE] })
 
@@ -165,7 +167,7 @@ function SubjectPage() {
 
   const dropdownOptions = (record) => (
     <Menu disabled={record.status === STATUS.DELETED}>
-      <Menu.Item key="detail" icon={<UserOutlined />} onClick={() => { history.push(`/subject/${record.subjectId}`) }}>
+      <Menu.Item key="detail" icon={<UserOutlined />} onClick={() => { history.push(`/subject/${record.subjectId}/${record.semester}`) }}>
         Chi Tiết
       </Menu.Item>
       <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { onClickEditButton(record) }}>
@@ -180,6 +182,8 @@ function SubjectPage() {
 
   useEffect(() => {
     fetchData()
+    fetchStudents()
+    fetchTeachers()
   }, [])
 
   const showConfirm = (value) => {
@@ -235,18 +239,30 @@ function SubjectPage() {
       })
   }
 
-  // const fetchMajors = () => {
-  //   HttpUtils.get(URLUtils.buildBeURL('/majors'))
-  //     .then(resp => {
-  //       const { data } = resp
-  //       if (data && data.length > 0) {
-  //         setListMajors(data.filter(item => (item.status !== STATUS.DELETED)))
-  //       }
-  //     })
-  //     .catch(err => {
-  //       ErrorHandler.handle(err)
-  //     })
-  // }
+  const fetchStudents = () => {
+    HttpUtils.get(URLUtils.buildBeURL('/students'))
+      .then(resp => {
+        const { data } = resp
+        if (data && data.length > 0) {
+          setListStudents(data.filter(item => (item.status !== STATUS.DELETED)))
+        }
+      })
+      .catch(err => {
+        ErrorHandler.handle(err)
+      })
+  }
+  const fetchTeachers = () => {
+    HttpUtils.get(URLUtils.buildBeURL('/teachers'))
+      .then(resp => {
+        const { data } = resp
+        if (data && data.length > 0) {
+          setListTeachers(data.filter(item => (item.status !== STATUS.DELETED)))
+        }
+      })
+      .catch(err => {
+        ErrorHandler.handle(err)
+      })
+  }
 
   const preProcessingData = (data) => {
     return data.map(item => {
@@ -331,6 +347,8 @@ function SubjectPage() {
         subjectInfo={currentData}
         fetchData={fetchData}
         listRooms={listRooms}
+        listTeachers={listTeachers}
+        listStudents={listStudents}
       />
     </>
   );

@@ -374,7 +374,7 @@ async function createStudentList(student_id_list) {
       }
     }
   }
-  return Promise.all(student_list);
+  return await Promise.all(student_list);
 }
 
 async function findSubject(subjectId, semester) {

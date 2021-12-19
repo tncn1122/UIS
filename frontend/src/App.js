@@ -41,7 +41,7 @@ function App(props) {
           <Route exact path="/billing" component={Billing} />
           <Route exact path="/rtl" component={Rtl} />
           <Route exact path="/user/:id" component={Profile} />
-          <Route exact path="/subject/:id" component={SubjectDetail} />
+          <Route exact path="/subject/:id/:semester" component={SubjectDetail} />
         </Main>
       </Switch>
     </div>

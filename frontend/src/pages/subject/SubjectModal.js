@@ -10,7 +10,7 @@ import moment from 'moment'
 const { Option } = Select
 
 const SubjectModal = (props) => {
-  const { subjectInfo, modalType, fetchData, listRooms } = props
+  const { subjectInfo, modalType, fetchData, listRooms, listTeachers, listStudents } = props
   const { visible, onCancel } = props
   const [form] = Form.useForm()
   const [formValues, setFormValues] = useState({});
@@ -33,6 +33,8 @@ const SubjectModal = (props) => {
         percentPractice: subjectInfo.percentPractice,
         percentExam: subjectInfo.percentExam,
         percentSerminar: subjectInfo.percentSerminar,
+        teacher: subjectInfo?.teacher?.userId,
+        students: subjectInfo?.students?.map(item => item.userId)
       })
     }
   }, [visible])
@@ -40,7 +42,7 @@ const SubjectModal = (props) => {
   const onSubmit = value => {
     value.startDate = value.startDate.format()
     const year = value.semester2.format('YYYY')
-    const nextYear = parseInt(year)+1
+    const nextYear = parseInt(year) + 1
     value.semester = `${value.semester1}${year}${nextYear}`
     if (modalType === 'edit') {
       editSubject(value)
@@ -269,6 +271,36 @@ const SubjectModal = (props) => {
                 <DatePicker size='large' placeholder={'Chọn ngày bắt đầu'} style={{ width: '100%', borderRadius: '6px', fontSize: '14px' }} />
               </Form.Item>
             </Col>
+
+            <Col span={12}>
+              <Form.Item
+                label="Chọn giảng viên"
+                name="teacher"
+                rules={[{
+                  required: true,
+                  message: 'Vui lòng chọn giảng viên.',
+                }]}
+                style={{
+                  borderRadius: '6px',
+                }}
+              >
+                <Select
+                  size='large'
+                  placeholder="Chọn giảng viên"
+                  style={{
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                >
+                  {
+                    listTeachers.map(item => (
+                      <Option key={"2"} value={item.userId}>{`${item.lastName} ${item.firstName}`}</Option>
+                    ))
+                  }
+                </Select>
+              </Form.Item>
+            </Col>
+
             <Col span={24}>
               <Divider>
                 Tỉ Lệ Điểm Thành Phần
@@ -318,6 +350,33 @@ const SubjectModal = (props) => {
                 rules={NUMBER_VALIDATE}
               >
                 <Input />
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Divider>
+                Sinh Viên
+              </Divider>
+            </Col>
+            <Col span={24}>
+              <Form.Item
+                label="Chọn Sinh Viên"
+                name="students"
+              >
+                <Select
+                  size='large'
+                  placeholder="Chọn sinh viên"
+                  style={{
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                  mode="tags"
+                >
+                  {
+                    listStudents.map(item => (
+                      <Option key={"2"} value={item.userId}>{`${item.lastName} ${item.firstName}`}</Option>
+                    ))
+                  }
+                </Select>
               </Form.Item>
             </Col>
           </Row>

@@ -95,7 +95,7 @@ router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
 
 /**
  * Lấy tất cả danh sách điểm danh theo môn. Chỉ có tài khoản có quyền Admin hoặc teacher mới thực hiện được chức năng này.
- * @route GET /reports/{subject_id}
+ * @route GET /reports/{subjectId}/{semester}/all
  * @group Report
  * @param {string} subject_id.path.required - id lớp cần điểm danh
  * @returns {ListReports.model} 200 - Thông tin tài khoản và token ứng với tài khoản đó.
@@ -103,19 +103,16 @@ router.post('/:subjectId/:semester', auth.isReporter, async (req, res) => {
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  * @security Bearer
  */
-router.get('/:subject_id', auth.isReporter, async (req, res) => {
+router.get('/:subjectId/:semester/all', auth.isReporter, async (req, res) => {
   // Create a new report
   try {
-    const report = await RollCallReport.find({ subject: req.params.subject_id }).populate({
-      path: 'content',
-      populate: {
-        path: 'user',
-        model: 'User'
-      }
-    });
+    const subjectId = req.params.subjectId
+    const semester = req.params.semester
+    const subjectInfo = await findClass(subjectId, semester)
 
+    const listReports = await findAllReportBySubject(subjectInfo)
     if (report) {
-      return res.status(201).send(ResponseUtil.makeResponse(report));
+      return res.status(201).send(ResponseUtil.makeResponse(listReports));
     }
     else {
       return res.status(404).send(ResponseUtil.makeMessageResponse(stringMessage.report_not_found));
@@ -165,18 +162,19 @@ router.get('/:subject_id/:semester/:date/status', async (req, res) => {
 
 /**
  * Tải về tổng hợp danh sách điểm danh của một môn.
- * @route GET /reports/{subject_id}/download-all
+ * @route GET /reports/{subjectId}/{semester}/download-all
  * @group Report
- * @param {string} subject_id.path.required - id môn học
+ * @param {string} subjectId.path.required - id môn học
+ * @param {string} semester.path.required - mã học kì
  * @returns {Error.model} 200 - File excel chứa report.
  * @returns {Error.model} 400 - Thông tin trong Body bị sai hoặc thiếu.
  * @returns {Error.model} 401 - Không có đủ quyền để thực hiện chức năng.
  */
-router.get('/:subject_id/download-all', async (req, res) => {
+router.get('/:subjectId/:semester/download-all', async (req, res) => {
   // Create a new report
   try {
-    console.log(req.params.subject_id);
-    let reportFile = await genExcelReportAll(req.params.subject_id);
+    console.log(req.params.subjectId);
+    let reportFile = await genExcelReportAll(req.params.subjectId, req.params.semester);
     reportFile.write('Report.xlsx', res);
   } catch (error) {
     console.log(error);
@@ -334,8 +332,8 @@ router.put('/:id/teachercheckin', auth.isTeacher, async (req, res) => {
 
 
 
-async function findAllReportBySubject(subject_id) {
-  return await RollCallReport.findOne({ subject: subject_id }).populate({
+async function findAllReportBySubject(subjectObj) {
+  return await RollCallReport.findOne({ subjectId: subjectObj }).populate({
     path: 'content',
     populate: {
       path: 'user',
@@ -382,13 +380,14 @@ async function findReportById(reportId) {
 async function genExcelReport(reportId) {
   let report = await findReportById(reportId);
   //console.log(report.content[0].user);
-  let subjectInfo = await findClassInfo(report.subject);
+  let subjectInfo = report.subjectId;
+  let teacherInfo = await getTeacherOfClass(subjectInfo);
   let workbook = new excel.Workbook();
   let reportSheet = workbook.addWorksheet(report.date);
 
   let title = "Báo Cáo Điểm Danh";
   let subject = "Môn: " + subjectInfo.name;
-  let teacher = "Giảng viên: " + subjectInfo.teacher.name;
+  let teacher = "Giảng viên: " + `${teacherInfo.lastName} ${teacherInfo.firstName}`;
   let shift = report.shift == 0 ? 'Sáng' : 'Chiều';
   let date = "Buổi: " + shift + " - Ngày: " + report.date;
 
@@ -417,14 +416,14 @@ async function genExcelReport(reportId) {
   let total_ontime = 0;
   for (const item of report.content) {
     //console.log(item.user);
-    if (item.user === null) {
+    if (item.studentId === null) {
       continue;
     }
     reportSheet.cell(curCell, 1).number(++total).style(rowStyle);
-    reportSheet.cell(curCell, 2).string(item.user.id).style(rowStyle);
-    reportSheet.cell(curCell, 3).string(item.user.name).style(rowStyle);
+    reportSheet.cell(curCell, 2).string(item.studentId.userId).style(rowStyle);
+    reportSheet.cell(curCell, 3).string(`${item.studentId.lastName} ${item.studentId.firstName}`).style(rowStyle);
 
-    switch (item.status) {
+    switch (item.rollcallStatus) {
       case 'ontime': {
         reportSheet.cell(curCell, 4).string(stringMessage.ontime).style(rowStyle);
         total_ontime++;
@@ -457,19 +456,21 @@ async function genExcelReport(reportId) {
   return workbook;
 }
 
-async function genExcelReportAll(subjectId) {
-  let report = await findAllReportBySubject(subjectId)
+async function genExcelReportAll(subjectId, semester) {
+  // let report = await findAllReportBySubject(subjectId)
   //console.log(report.content[0].user);
   //console.log(subjectId);
-  let subjectInfo = await findClass(subjectId);
-  console.log(subjectInfo);
+  let subjectInfo = await findClass(subjectId, semester);
+  let teacherInfo = await getTeacherOfClass(subjectInfo);
+  let students = await getStudentInSubject(subjectInfo)
+
   let workbook = new excel.Workbook();
   let reportSheet = workbook.addWorksheet(subjectInfo.id);
 
 
   let title = "Báo Cáo Điểm Danh";
   let subject = "Môn: " + subjectInfo.name;
-  let teacher = "Giảng viên: " + subjectInfo.teacher.name;
+  let teacher = "Giảng viên: " + `${teacherInfo.lastName} ${teacherInfo.firstName}`;
   let shift = subjectInfo.shift == 0 ? 'Sáng' : 'Chiều';
   let date = "Buổi: " + shift + " - Ngày bắt đầu: " + (subjectInfo.schedule[0].split('@')[1]);
 
@@ -493,13 +494,13 @@ async function genExcelReportAll(subjectId) {
   const studentPosition = new Map();
   let pos = 6;
   let total = 0;
-  for (student of subjectInfo.students) {
+  for (student of students) {
     console.log(student);
     if (student) {
-      studentPosition.set(student.id, pos);
+      studentPosition.set(student.userId, pos);
       reportSheet.cell(pos, 1).number(++total).style(rowStyle);
-      reportSheet.cell(pos, 2).string(student.id).style(rowStyle);
-      reportSheet.cell(pos, 3).string(student.name).style(rowStyle);
+      reportSheet.cell(pos, 2).string(student.userId).style(rowStyle);
+      reportSheet.cell(pos, 3).string(`${student.lastName} ${student.firstName}`).style(rowStyle);
       pos++;
     }
   }
@@ -507,7 +508,7 @@ async function genExcelReportAll(subjectId) {
   for (const date of subjectInfo.schedule) {
     //console.log(item.user);
     let dateInfo = date.split('@');
-    let report = await findReport(dateInfo[1], subjectInfo.id, dateInfo[0]);
+    let report = await reportUtil.findReport(dateInfo[1], subjectInfo);
     reportSheet.cell(5, reportCol).string(dateInfo[1]).style(rowTitleStyle);
     if (report) {
       // put dữ liệu điểm danh
@@ -517,20 +518,20 @@ async function genExcelReportAll(subjectId) {
           continue;
         }
         console.log(item);
-        console.log(studentPosition.get(item.user.id) + " " + reportCol)
+        console.log(studentPosition.get(item.studentId.usreId) + " " + reportCol)
         switch (item.status) {
           case 'ontime': {
-            reportSheet.cell(studentPosition.get(item.user.id), reportCol).string(stringMessage.ontime).style(rowStyle);
+            reportSheet.cell(studentPosition.get(item.studentId.usreId), reportCol).string(stringMessage.ontime).style(rowStyle);
 
             break;
           }
           case 'late': {
-            reportSheet.cell(studentPosition.get(item.user.id), reportCol).string(stringMessage.late).style(rowStyle);
+            reportSheet.cell(studentPosition.get(item.studentId.usreId), reportCol).string(stringMessage.late).style(rowStyle);
 
             break;
           }
           case 'absent': {
-            reportSheet.cell(studentPosition.get(item.user.id), reportCol).string(stringMessage.absent).style(rowStyle);
+            reportSheet.cell(studentPosition.get(item.studentId.usreId), reportCol).string(stringMessage.absent).style(rowStyle);
 
             break;
           }
