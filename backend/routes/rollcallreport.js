@@ -260,7 +260,7 @@ router.put('/:id/checkin', auth.isStudent, async (req, res) => {
     // }
     const rollCall = await reportUtil.findRollcall(report.rollcallReportId, student)
     if (rollCall) {
-      await Rollcall.findOneAndUpdate({rollcallReportId: rollCall.rollcallReportId}, {rollcallStatus})
+      await Rollcall.findOneAndUpdate({rollcallReportId: rollCall.rollcallReportId, studentId: rollCall.studentId}, {rollcallStatus})
       
       //console.log(ResponseUtil.makeMessageResponse(stringMessage[status]));
       return res.status(200).send(ResponseUtil.makeMessageResponse(stringMessage[rollcallStatus]));

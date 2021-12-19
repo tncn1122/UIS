@@ -66,7 +66,7 @@ const reportschema = baseSchema.CreateSchema({
 
 reportschema.pre('save', async function (next) {
   const report = this;
-  report.qrUrl = QR.createQR(report.id);
+  report.qrUrl = QR.createQR(report.rollcallReportId);
   report.date = getDate()
 
   classtUtil.validateDate(report.checkinLimitTime);

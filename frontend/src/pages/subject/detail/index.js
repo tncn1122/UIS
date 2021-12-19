@@ -316,6 +316,38 @@ function SubjectDetail() {
       textclass: "text-warning",
       amountcolor: "text-warning-b",
     },
+    {
+      avatar: <PlusOutlined style={{ fontSize: 10 }} />,
+      title: "Creative Tim",
+      description: "26 March 2021, at 07:30 AM",
+      amount: "+ $2,400",
+      textclass: "text-fill",
+      amountcolor: "text-success",
+    },
+    {
+      avatar: <ExclamationOutlined style={{ fontSize: 10 }} />,
+      title: "Webflow",
+      description: "26 March 2021, at 04:00 AM",
+      amount: "Pending",
+      textclass: "text-warning",
+      amountcolor: "text-warning-b",
+    },
+    {
+      avatar: <PlusOutlined style={{ fontSize: 10 }} />,
+      title: "Creative Tim",
+      description: "26 March 2021, at 07:30 AM",
+      amount: "+ $2,400",
+      textclass: "text-fill",
+      amountcolor: "text-success",
+    },
+    {
+      avatar: <ExclamationOutlined style={{ fontSize: 10 }} />,
+      title: "Webflow",
+      description: "26 March 2021, at 04:00 AM",
+      amount: "Pending",
+      textclass: "text-warning",
+      amountcolor: "text-warning-b",
+    },
   ];
 
   return (
@@ -451,8 +483,8 @@ function SubjectDetail() {
           </Card>
         </Col>
       </Row>
-      <Row gutter={[24, 0]}>
-        <Col span={24} md={16} className="mb-24">
+      
+        <Col span={16} md={16} className="mb-24">
           <Card
             className="header-solid h-full"
             bordered={false}
@@ -491,7 +523,7 @@ function SubjectDetail() {
             </Row>
           </Card>
         </Col>
-        <Col span={24} md={8} className="mb-24">
+        <Col span={8} md={8} className="mb-24">
           <Card
             bordered={false}
             bodyStyle={{ paddingTop: 0 }}
@@ -504,28 +536,6 @@ function SubjectDetail() {
               </p>
             }
           >
-            <List
-              header={<h6>NEWEST</h6>}
-              className="transactions-list ant-newest"
-              itemLayout="horizontal"
-              dataSource={newest}
-              renderItem={(item) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar size="small" className={item.textclass}>
-                        {item.avatar}
-                      </Avatar>
-                    }
-                    title={item.title}
-                    description={item.description}
-                  />
-                  <div className="amount">
-                    <span className={item.amountcolor}>{item.amount}</span>
-                  </div>
-                </List.Item>
-              )}
-            />
 
             <List
               className="yestday transactions-list"
@@ -551,7 +561,7 @@ function SubjectDetail() {
             />
           </Card>
         </Col>
-      </Row>
+    
     </>
   );
 }
